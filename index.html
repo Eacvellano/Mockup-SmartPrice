@@ -1,1291 +1,868 @@
-from flask import Flask, render_template, request, jsonify
-
-app = Flask(__name__)
-from flask import Flask, render_template, request, jsonify
-import os
-
-app = Flask(__name__, template_folder=os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'templates'))
-
-# El resto de tu código igual...from flask import Flask, render_template, request, jsonify
-import os
-
-app = Flask(__name__, template_folder=os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'templates'))
-
-# El resto de tu código igual...
-# Datos de ejemplo para productos básicos
-sample_products = [
-    {
-        "id": 1,
-        "name": "Leche Alpura 1L",
-        "category": "Lácteos",
-        "image": "https://via.placeholder.com/300x200/24A9DC/FFFFFF?text=Leche",
-        "stores": [
-            {"name": "Walmart Altabrisa", "price": 23.50, "distance": 1.2, "offer_valid": "🟢"},
-            {"name": "Soriana Montejo", "price": 24.30, "distance": 2.1, "offer_valid": "🟢"},
-            {"name": "Chedraui Itzaes", "price": 22.90, "distance": 3.5, "offer_valid": "🟡"}
-        ],
-        "description": "Leche entera pasteurizada de 1 litro. Rica en calcio y vitaminas."
-    },
-    {
-        "id": 2,
-        "name": "Huevo Blanco 30pz",
-        "category": "Abarrotes",
-        "image": "https://via.placeholder.com/300x200/EB692C/FFFFFF?text=Huevo",
-        "stores": [
-            {"name": "Walmart Altabrisa", "price": 68.50, "distance": 1.2, "offer_valid": "🟢"},
-            {"name": "Soriana Montejo", "price": 65.90, "distance": 2.1, "offer_valid": "🟡"},
-            {"name": "Chedraui Itzaes", "price": 70.20, "distance": 3.5, "offer_valid": "🟢"}
-        ],
-        "description": "Huevo blanco grado A, paquete de 30 piezas."
-    },
-    {
-        "id": 3,
-        "name": "Frijol Negro 1kg",
-        "category": "Legumbres",
-        "image": "https://via.placeholder.com/300x200/36C07E/FFFFFF?text=Frijol",
-        "stores": [
-            {"name": "Walmart Altabrisa", "price": 38.00, "distance": 1.2, "offer_valid": "🟡"},
-            {"name": "Soriana Montejo", "price": 35.50, "distance": 2.1, "offer_valid": "🟢"},
-            {"name": "Chedraui Itzaes", "price": 36.80, "distance": 3.5, "offer_valid": "🟢"}
-        ],
-        "description": "Frijol negro de primera calidad, paquete de 1kg."
-    },
-    {
-        "id": 4,
-        "name": "Arroz SOS 1kg",
-        "category": "Granos",
-        "image": "https://via.placeholder.com/300x200/24A9DC/FFFFFF?text=Arroz",
-        "stores": [
-            {"name": "Walmart Altabrisa", "price": 28.50, "distance": 1.2, "offer_valid": "🟢"},
-            {"name": "Soriana Montejo", "price": 26.90, "distance": 2.1, "offer_valid": "🟢"},
-            {"name": "Chedraui Itzaes", "price": 27.80, "distance": 3.5, "offer_valid": "🟡"}
-        ],
-        "description": "Arroz blanco grano largo, paquete de 1kg."
-    },
-    {
-        "id": 5,
-        "name": "Aceite Capullo 1L",
-        "category": "Aceites",
-        "image": "https://via.placeholder.com/300x200/EB692C/FFFFFF?text=Aceite",
-        "stores": [
-            {"name": "Walmart Altabrisa", "price": 45.00, "distance": 1.2, "offer_valid": "🟡"},
-            {"name": "Soriana Montejo", "price": 42.50, "distance": 2.1, "offer_valid": "🟢"},
-            {"name": "Chedraui Itzaes", "price": 43.80, "distance": 3.5, "offer_valid": "🟢"}
-        ],
-        "description": "Aceite vegetal comestible, botella de 1 litro."
-    }
-]
-
-# Datos de ejemplo para tiendas
-sample_stores = [
-    {"name": "Walmart Altabrisa", "lat": 20.983113, "lng": -89.624222, "avg_price": "$$"},
-    {"name": "Soriana Montejo", "lat": 20.987654, "lng": -89.618765, "avg_price": "$$"},
-    {"name": "Chedraui Itzaes", "lat": 20.976543, "lng": -89.632109, "avg_price": "$"},
-    {"name": "Bodega Aurrera", "lat": 20.991234, "lng": -89.621987, "avg_price": "$"},
-    {"name": "La Comer", "lat": 20.985432, "lng": -89.627654, "avg_price": "$$$"}
-]
-
-@app.route('/')
-def index():
-    """Pantalla de inicio/Splash"""
-    return render_template('index.html')
-
-@app.route('/login')
-def login():
-    """Pantalla de registro/inicio de sesión"""
-    return render_template('login.html')
-
-@app.route('/home')
-def home():
-    """Pantalla principal con productos destacados"""
-    return render_template('home.html', products=sample_products)
-
-@app.route('/search')
-def search():
-    """Buscador de productos"""
-    query = request.args.get('q', '')
-    # Filtrar productos basado en la búsqueda
-    if query:
-        filtered_products = [p for p in sample_products if query.lower() in p['name'].lower() or query.lower() in p['category'].lower()]
-    else:
-        filtered_products = sample_products
-    return render_template('search.html', query=query, products=filtered_products)
-
-@app.route('/compare')
-def compare():
-    """Comparador de precios"""
-    product_id = request.args.get('product_id', 1)
-    product = next((p for p in sample_products if p["id"] == int(product_id)), sample_products[0])
-    
-    # Calcular mejor opción (precio + distancia)
-    for store in product["stores"]:
-        store["score"] = store["price"] + (store["distance"] * 5)  # Ponderación distancia
-    
-    best_option = min(product["stores"], key=lambda x: x["score"])
-    best_option["is_best"] = True
-    
-    return render_template('compare.html', product=product)
-
-@app.route('/map')
-def map_view():
-    """Mapa de tiendas"""
-    return render_template('map.html', stores=sample_stores)
-
-@app.route('/product/<int:product_id>')
-def product_detail(product_id):
-    """Detalle de producto"""
-    product = next((p for p in sample_products if p["id"] == product_id), sample_products[0])
-    return render_template('product.html', product=product)
-
-@app.route('/cart')
-def cart():
-    """Carrito de compras"""
-    cart_items = sample_products[:2]  # Simular productos en carrito
-    return render_template('cart.html', cart_items=cart_items)
-
-@app.route('/chat')
-def chat():
-    """Chat asistente"""
-    return render_template('chat.html')
-
-@app.route('/profile')
-def profile():
-    """Perfil de usuario"""
-    return render_template('profile.html')
-
-# APIs para funcionalidades dinámicas
-@app.route('/api/products')
-def api_products():
-    """API para obtener productos"""
-    return jsonify(sample_products)
-
-@app.route('/api/stores')
-def api_stores():
-    """API para obtener tiendas"""
-    return jsonify(sample_stores)
-
-@app.route('/api/chat', methods=['POST'])
-def api_chat():
-    """API para el chat asistente"""
-    data = request.json
-    user_message = data.get('message', '')
-    
-    # Respuestas predefinidas del chatbot
-    responses = {
-        "leche": "En Soriana, la leche cuesta $23.50 y está a 1.2 km de ti.",
-        "huevo": "En Walmart Altabrisa, el huevo cuesta $68.50 y está a 1.2 km de ti.",
-        "frijol": "En Chedraui Itzaes, el frijol cuesta $35.50 y está a 3.5 km de ti.",
-        "arroz": "En Soriana, el arroz cuesta $26.90 y está a 2.1 km de ti.",
-        "aceite": "En Soriana, el aceite cuesta $42.50 y está a 2.1 km de ti."
-    }
-    
-    # Buscar respuesta basada en palabras clave
-    response = "Lo siento, no tengo información sobre ese producto en este momento. Puedo ayudarte con leche, huevo, frijol, arroz o aceite."
-    for keyword, resp in responses.items():
-        if keyword in user_message.lower():
-            response = resp
-            break
-    
-    return jsonify({"response": response})
-
-if __name__ == '__main__':
-    app.run(debug=True, port=5000)
-
-
-<!DOCTYPE html>
+<!doctype html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Carrito - SmartPrice</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>SmartPrice — Mockup</title>
+
+  <!-- Fuentes y Bootstrap (CDN) -->
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+
+  <!-- Estilos del mockup -->
+  <style>
+    :root{
+      --primary: #24A9DC;
+      --accent:#EB692C;
+      --success:#36C07E;
+      --bg:#f6f8fa;
+      --card:#ffffff;
+      --muted:#6c757d;
+      --radius:12px;
+      --glass: rgba(255,255,255,0.6);
+    }
+    *{box-sizing:border-box}
+    body{
+      font-family:'Poppins',sans-serif;
+      margin:0;
+      background:linear-gradient(180deg,#f8fbfd 0%,var(--bg) 100%);
+      color:#0b2a33;
+      -webkit-font-smoothing:antialiased;
+      -moz-osx-font-smoothing:grayscale;
+      min-height:100vh;
+    }
+
+    /* Navbar */
+    .topbar{
+      position:sticky;
+      top:0;
+      z-index:1000;
+      backdrop-filter: blur(6px);
+      background: rgba(255,255,255,0.9);
+      box-shadow: 0 2px 10px rgba(12,42,50,0.06);
+      border-bottom: 1px solid rgba(10,30,36,0.03);
+    }
+    .brand{
+      font-weight:700;
+      color:var(--primary);
+      font-size:1.15rem;
+      letter-spacing:0.2px;
+    }
+    nav .nav-link{ color:#234; font-weight:500; }
+    nav .nav-link.active { color:var(--primary); }
+
+    /* Layout */
+    .container-compact{ max-width:1100px; margin: 24px auto; padding: 0 16px; }
+
+    /* Cards */
+    .card-ghost{
+      background:var(--card);
+      border-radius:var(--radius);
+      padding:16px;
+      box-shadow: 0 8px 20px rgba(12,42,50,0.06);
+      border: none;
+    }
+
+    /* Product card */
+    .product-grid{ display:grid; grid-template-columns:repeat(auto-fit,minmax(240px,1fr)); gap:18px; }
+    .p-thumb{ width:100%; height:160px; object-fit:cover; border-radius:10px; }
+    .offer-badge{
+      position:absolute; top:10px; left:10px;
+      background:linear-gradient(90deg,var(--accent),#ff8a5b);
+      color:white; padding:6px 10px; border-radius:999px; font-weight:700; font-size:0.8rem;
+      box-shadow:0 6px 18px rgba(235,105,44,0.18);
+    }
+
+    /* Sections */
+    section.app-section{ display:none; padding:28px 0; min-height:60vh; }
+    section.app-section.active{ display:block; }
+
+    /* Splash */
+    .splash{
+      display:flex; align-items:center; justify-content:center; min-height:72vh; border-radius:14px;
+      background: linear-gradient(135deg,var(--primary), #1c89b4);
+      color:white; box-shadow: 0 12px 40px rgba(14,64,96,0.16);
+      margin:24px auto; max-width:980px; padding:48px;
+    }
+    .splash h1{ font-size:2.2rem; margin-bottom:8px; }
+    .splash p{ opacity:0.95; margin-bottom:18px; }
+
+    /* Search bar */
+    .search-bar{ border-radius:10px; padding:12px 14px; border:1px solid rgba(10,30,36,0.06); }
+
+    /* Comparison table */
+    .best-row{ background: linear-gradient(90deg, rgba(36,169,220,0.06), rgba(54,192,126,0.03)); border-left:4px solid var(--success); }
+
+    /* Chat */
+    .chat-window{ max-height:420px; overflow:auto; padding:12px; display:flex; flex-direction:column; gap:12px; }
+    .bubble{ max-width:80%; padding:10px 14px; border-radius:14px; }
+    .bot{ align-self:flex-start; background:#f1fbff; border:1px solid rgba(36,169,220,0.12); }
+    .user{ align-self:flex-end; background:linear-gradient(90deg,var(--primary),#1c89b4); color:white; }
+
+    /* Footer */
+    footer.footer{ padding:22px 0; text-align:center; color:var(--muted); font-size:0.9rem; margin-top:38px; }
+
+    /* Responsive small tweaks */
+    @media (max-width:760px){
+      .splash{ padding:28px; min-height:48vh; }
+      .brand{ font-size:1rem; }
+      nav .nav-link{ font-size:0.92rem; }
+    }
+
+    /* Tiny helpers */
+    .muted{ color:var(--muted); font-size:0.95rem; }
+    .mb-sm{ margin-bottom:10px; }
+    .pill{ padding:6px 10px; border-radius:999px; font-weight:600; font-size:0.85rem; }
+  </style>
 </head>
 <body>
-    <nav class="navbar navbar-light bg-white">
-        <div class="container">
-            <a class="navbar-brand fw-bold" href="{{ url_for('home') }}">🛒 SmartPrice</a>
-            <a href="{{ url_for('home') }}" class="btn btn-link">Seguir comprando</a>
+
+  <!-- NAVBAR -->
+  <header class="topbar">
+    <div class="container-compact d-flex align-items-center justify-content-between py-2">
+      <div class="d-flex align-items-center gap-3">
+        <div class="brand" onclick="navigateTo('home')">🛒 SmartPrice</div>
+        <div class="d-none d-md-block">
+          <input id="globalSearch" placeholder="Buscar productos, ej. 'leche'" class="search-bar" style="width:340px" onkeydown="if(event.key==='Enter') goSearch()">
         </div>
-    </nav>
+      </div>
 
-    <div class="container mt-4">
-        <div class="row">
-            <div class="col-md-8">
-                <h3 class="mb-4">Tu carrito de compras</h3>
-                
-                <!-- Productos en el carrito -->
-                <div class="card mb-3">
-                    <div class="card-body">
-                        <div class="row align-items-center">
-                            <div class="col-2">
-                                <img src="https://via.placeholder.com/80x80/24A9DC/FFFFFF?text=L" class="img-fluid rounded" alt="Leche">
-                            </div>
-                            <div class="col-4">
-                                <h6 class="mb-0">Leche Alpura 1L</h6>
-                                <small class="text-muted">Lácteos</small>
-                            </div>
-                            <div class="col-2">
-                                <div class="input-group input-group-sm">
-                                    <button class="btn btn-outline-secondary">-</button>
-                                    <input type="text" class="form-control text-center" value="1">
-                                    <button class="btn btn-outline-secondary">+</button>
-                                </div>
-                            </div>
-                            <div class="col-2">
-                                <span class="product-price">$23.50</span>
-                            </div>
-                            <div class="col-2">
-                                <button class="btn btn-outline-danger btn-sm">Eliminar</button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="card mb-3">
-                    <div class="card-body">
-                        <div class="row align-items-center">
-                            <div class="col-2">
-                                <img src="https://via.placeholder.com/80x80/EB692C/FFFFFF?text=H" class="img-fluid rounded" alt="Huevo">
-                            </div>
-                            <div class="col-4">
-                                <h6 class="mb-0">Huevo Blanco 30pz</h6>
-                                <small class="text-muted">Abarrotes</small>
-                            </div>
-                            <div class="col-2">
-                                <div class="input-group input-group-sm">
-                                    <button class="btn btn-outline-secondary">-</button>
-                                    <input type="text" class="form-control text-center" value="1">
-                                    <button class="btn btn-outline-secondary">+</button>
-                                </div>
-                            </div>
-                            <div class="col-2">
-                                <span class="product-price">$68.50</span>
-                            </div>
-                            <div class="col-2">
-                                <button class="btn btn-outline-danger btn-sm">Eliminar</button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Agregar más productos -->
-                <div class="card">
-                    <div class="card-body text-center">
-                        <a href="{{ url_for('search') }}" class="btn btn-outline-primary">Agregar más productos</a>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Resumen del carrito -->
-            <div class="col-md-4">
-                <div class="card">
-                    <div class="card-body">
-                        <h5 class="card-title">Resumen de compra</h5>
-                        
-                        <div class="d-flex justify-content-between mb-2">
-                            <span>Subtotal:</span>
-                            <span>$92.00</span>
-                        </div>
-                        <div class="d-flex justify-content-between mb-2">
-                            <span>Ahorro estimado:</span>
-                            <span class="text-success">$8.50</span>
-                        </div>
-                        <hr>
-                        <div class="d-flex justify-content-between mb-3">
-                            <strong>Total:</strong>
-                            <strong class="product-price">$92.00</strong>
-                        </div>
-
-                        <!-- Recomendación de tienda -->
-                        <div class="alert alert-success">
-                            <h6>🏪 Mejor opción:</h6>
-                            <p class="mb-1"><strong>Walmart Altabrisa</strong></p>
-                            <small>Total: $92.00 • 1.2 km de ti</small>
-                            <br>
-                            <small class="text-muted">Ahorras $8.50 vs otras tiendas</small>
-                        </div>
-
-                        <button class="btn btn-primary w-100 mb-2">Generar plan de compra</button>
-                        <button class="btn btn-outline-primary w-100">Guardar lista</button>
-                    </div>
-                </div>
-            </div>
-        </div>
+      <nav class="d-flex align-items-center gap-2">
+        <a class="nav-link" href="#" onclick="navigateTo('home');return false">Inicio</a>
+        <a class="nav-link" href="#" onclick="navigateTo('search');return false">Buscar</a>
+        <a class="nav-link" href="#" onclick="navigateTo('compare');return false">Comparar</a>
+        <a class="nav-link" href="#" onclick="navigateTo('map');return false">Mapa</a>
+        <a class="nav-link" href="#" onclick="navigateTo('cart');return false">Carrito <span id="cartCount" class="pill bg-light ms-1">0</span></a>
+        <a class="nav-link" href="#" onclick="navigateTo('profile');return false">Perfil</a>
+        <button class="btn btn-sm" style="background:var(--primary); color:white; border:none; border-radius:10px" onclick="navigateTo('chat')">Chat</button>
+      </nav>
     </div>
+  </header>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-</body>
-</html>
+  <!-- MAIN CONTAINER -->
+  <main class="container-compact">
 
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Asistente Virtual - SmartPrice</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
-</head>
-<body>
-    <nav class="navbar navbar-light bg-white">
-        <div class="container">
-            <a class="navbar-brand fw-bold" href="{{ url_for('home') }}">🛒 SmartPrice</a>
-            <a href="{{ url_for('home') }}" class="btn btn-link">Volver</a>
+    <!-- SPLASH / START -->
+    <section id="splash" class="app-section active">
+      <div class="splash">
+        <div style="max-width:650px">
+          <h1>SmartPrice — Tu compra inteligente en Mérida</h1>
+          <p>Compara precios, encuentra la tienda más cercana y crea tu plan de compra. Mockup funcional listo para mostrar en GitHub Pages.</p>
+          <div class="d-flex gap-2">
+            <button class="btn btn-light" onclick="navigateTo('login')">Iniciar sesión</button>
+            <button class="btn" style="background:var(--primary); color:white" onclick="navigateTo('home')">Ver productos</button>
+          </div>
         </div>
-    </nav>
-
-    <div class="container mt-4">
-        <div class="row justify-content-center">
-            <div class="col-md-8">
-                <div class="card">
-                    <div class="card-header bg-primary text-white">
-                        <div class="d-flex align-items-center">
-                            <div class="chat-avatar">SP</div>
-                            <div>
-                                <h5 class="mb-0">Asistente SmartPrice</h5>
-                                <small>Conectado • Te ayudo a encontrar los mejores precios</small>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Chat container -->
-                    <div class="chat-container" id="chatContainer">
-                        <div class="chat-bubble chat-bot">
-                            <strong>SmartPrice:</strong> ¡Hola! Soy tu asistente de compras. ¿En qué puedo ayudarte? Puedo buscarte precios, comparar productos o sugerirte las mejores opciones.
-                        </div>
-                        
-                        <div class="chat-bubble chat-user">
-                            <strong>Tú:</strong> ¿Dónde está más barata la leche?
-                        </div>
-                        
-                        <div class="chat-bubble chat-bot">
-                            <strong>SmartPrice:</strong> En Soriana, la leche cuesta $23.50 y está a 1.2 km de ti. 🥛
-                        </div>
-                    </div>
-
-                    <!-- Input de chat -->
-                    <div class="card-footer">
-                        <div class="input-group">
-                            <input type="text" class="form-control" id="messageInput" placeholder="Escribe tu pregunta...">
-                            <button class="btn btn-primary" onclick="sendMessage()">Enviar</button>
-                        </div>
-                        <small class="text-muted mt-2 d-block">
-                            Pregunta por: "leche", "huevo", "frijol", "precios", "ofertas"
-                        </small>
-                    </div>
-                </div>
-
-                <!-- Ejemplos de preguntas -->
-                <div class="card mt-3">
-                    <div class="card-body">
-                        <h6>Preguntas frecuentes:</h6>
-                        <div class="row">
-                            <div class="col-md-6">
-                                <button class="btn btn-outline-secondary btn-sm w-100 mb-2" onclick="setExample('¿Dónde está más barata la leche?')">
-                                    ¿Dónde está más barata la leche?
-                                </button>
-                                <button class="btn btn-outline-secondary btn-sm w-100 mb-2" onclick="setExample('Necesito comprar huevo')">
-                                    Necesito comprar huevo
-                                </button>
-                            </div>
-                            <div class="col-md-6">
-                                <button class="btn btn-outline-secondary btn-sm w-100 mb-2" onclick="setExample('¿Qué supermercado me recomiendas?')">
-                                    ¿Qué supermercado me recomiendas?
-                                </button>
-                                <button class="btn btn-outline-secondary btn-sm w-100 mb-2" onclick="setExample('Muéstrame ofertas de hoy')">
-                                    Muéstrame ofertas de hoy
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+        <div style="margin-left:24px; width:320px; position:relative;">
+          <div class="card-ghost" style="position:relative; overflow:hidden;">
+            <img src="https://via.placeholder.com/600x360/24A9DC/ffffff?text=SmartPrice" alt="mock" style="width:100%; border-radius:10px; object-fit:cover;">
+            <div style="position:absolute; right:12px; bottom:12px; background:rgba(255,255,255,0.85); padding:8px 12px; border-radius:10px; font-weight:700; color:#123;">
+              Mérida • Comparativa local
             </div>
+          </div>
         </div>
-    </div>
+      </div>
+    </section>
 
-    <script>
-        function setExample(text) {
-            document.getElementById('messageInput').value = text;
-        }
+    <!-- LOGIN -->
+    <section id="login" class="app-section">
+      <div class="card-ghost">
+        <div class="row g-3 align-items-center">
+          <div class="col-md-6">
+            <h3>Iniciar sesión</h3>
+            <p class="muted">Usa cualquier correo para simular el inicio de sesión en este mockup.</p>
 
-        function sendMessage() {
-            const input = document.getElementById('messageInput');
-            const message = input.value.trim();
-            
-            if (message === '') return;
+            <div class="mb-sm">
+              <label class="form-label">Correo</label>
+              <input id="loginEmail" class="form-control" type="email" placeholder="tu@correo.com">
+            </div>
+            <div class="mb-sm">
+              <label class="form-label">Contraseña</label>
+              <input id="loginPass" class="form-control" type="password" placeholder="••••••••">
+            </div>
 
-            // Agregar mensaje del usuario
-            const chatContainer = document.getElementById('chatContainer');
-            const userMessage = document.createElement('div');
-            userMessage.className = 'chat-bubble chat-user';
-            userMessage.innerHTML = `<strong>Tú:</strong> ${message}`;
-            chatContainer.appendChild(userMessage);
+            <div class="d-flex gap-2">
+              <button class="btn" style="background:var(--primary); color:white" onclick="doLogin()">Entrar</button>
+              <button class="btn btn-outline-secondary" onclick="navigateTo('home')">Entrar como invitado</button>
+            </div>
+          </div>
 
-            // Limpiar input
-            input.value = '';
+          <div class="col-md-6">
+            <div style="height:200px; display:flex; align-items:center; justify-content:center; flex-direction:column;">
+              <h5>Beneficios</h5>
+              <ul class="muted">
+                <li>Ahorros estimados por tienda</li>
+                <li>Historial de precios</li>
+                <li>Alertas personalizadas</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
 
-            // Simular respuesta del bot
-            setTimeout(() => {
-                const botMessage = document.createElement('div');
-                botMessage.className = 'chat-bubble chat-bot';
-                
-                let response = "Lo siento, no tengo información sobre eso en este momento.";
-                if (message.toLowerCase().includes('leche')) {
-                    response = "En Soriana, la leche cuesta $23.50 y está a 1.2 km de ti. 🥛";
-                } else if (message.toLowerCase().includes('huevo')) {
-                    response = "En Walmart Altabrisa, el huevo cuesta $68.50 y está a 1.2 km de ti. 🥚";
-                } else if (message.toLowerCase().includes('frijol')) {
-                    response = "En Chedraui Itzaes, el frijol cuesta $35.50 y está a 3.5 km de ti. 🌱";
-                }
-                
-                botMessage.innerHTML = `<strong>SmartPrice:</strong> ${response}`;
-                chatContainer.appendChild(botMessage);
-                chatContainer.scrollTop = chatContainer.scrollHeight;
-            }, 1000);
+    <!-- HOME / PRODUCTS -->
+    <section id="home" class="app-section">
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <div>
+          <h3>Productos destacados</h3>
+          <p class="muted mb-0">Ofertas y recomendaciones para ti</p>
+        </div>
+        <div>
+          <button class="btn btn-outline-secondary me-2" onclick="navigateTo('search')">Ver todos</button>
+          <button class="btn" style="background:var(--primary); color:white" onclick="navigateTo('compare')">Comparar</button>
+        </div>
+      </div>
 
-            chatContainer.scrollTop = chatContainer.scrollHeight;
-        }
+      <div class="product-grid" id="productsContainer">
+        <!-- Cards se inyectan desde JS -->
+      </div>
 
-        // Permitir enviar con Enter
-        document.getElementById('messageInput').addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') {
-                sendMessage();
-            }
+      <div class="mt-4 card-ghost">
+        <h5>Accesos rápidos</h5>
+        <div class="row mt-3">
+          <div class="col-md-3 mb-2"><button class="btn w-100 btn-light" onclick="navigateTo('search')">🔍 Buscar productos</button></div>
+          <div class="col-md-3 mb-2"><button class="btn w-100 btn-light" onclick="navigateTo('compare')">⚖️ Comparar precios</button></div>
+          <div class="col-md-3 mb-2"><button class="btn w-100 btn-light" onclick="navigateTo('map')">🗺 Mapa de tiendas</button></div>
+          <div class="col-md-3 mb-2"><button class="btn w-100" style="background:var(--primary); color:white" onclick="navigateTo('chat')">🤖 Asistente</button></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SEARCH -->
+    <section id="search" class="app-section">
+      <div class="d-flex justify-content-between align-items-center">
+        <h3>Buscar productos</h3>
+        <div class="d-flex gap-2">
+          <input id="searchInput" class="form-control" placeholder="Buscar por nombre o categoría" onkeydown="if(event.key==='Enter') goSearch()">
+          <button class="btn btn-primary" onclick="goSearch()">Buscar</button>
+        </div>
+      </div>
+
+      <div class="mt-3" id="searchResults">
+        <!-- Resultados renderizados por JS -->
+      </div>
+    </section>
+
+    <!-- COMPARE -->
+    <section id="compare" class="app-section">
+      <h3>Comparador de precios</h3>
+      <p class="muted">Selecciona un producto para ver la comparación entre tiendas</p>
+
+      <div class="row mt-3">
+        <div class="col-md-4">
+          <div class="card-ghost">
+            <label class="form-label">Producto</label>
+            <select id="compareSelect" class="form-select" onchange="renderComparison()"></select>
+          </div>
+        </div>
+        <div class="col-md-8">
+          <div id="compareTable">
+            <!-- Tabla será renderizada por JS -->
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- PRODUCT DETAIL -->
+    <section id="product" class="app-section">
+      <div class="row g-3">
+        <div class="col-md-4">
+          <div class="card-ghost text-center">
+            <img id="productImage" src="https://via.placeholder.com/400x280" class="p-thumb mb-3" alt="producto">
+            <div id="productPrice" class="fs-4 fw-bold"></div>
+            <div id="productStore" class="muted"></div>
+            <div class="d-grid gap-2 mt-3">
+              <button class="btn btn-primary" onclick="addToCart(currentProductId)">Agregar al carrito</button>
+              <button class="btn btn-outline-secondary" onclick="followProduct(currentProductId)">Seguir producto</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-md-8">
+          <div class="card-ghost">
+            <h3 id="productTitle"></h3>
+            <p id="productDesc" class="muted"></p>
+
+            <hr>
+            <h5>Precios en tiendas</h5>
+            <div id="productStores" class="row g-3 mt-2"></div>
+
+            <hr>
+            <h5>Historial (simulado)</h5>
+            <div style="height:160px; background:linear-gradient(180deg,#f3f7fb,#eef6fb); border-radius:8px; display:flex; align-items:center; justify-content:center;">
+              <small class="muted">Gráfica simulada (integración real con Chart.js opcional)</small>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- CART -->
+    <section id="cart" class="app-section">
+      <h3>Tu carrito</h3>
+      <div class="row g-3">
+        <div class="col-md-8">
+          <div id="cartItems">
+            <!-- Items inyectados por JS -->
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div class="card-ghost">
+            <h5>Resumen</h5>
+            <div class="d-flex justify-content-between"><span>Subtotal</span><strong id="subtotal">$0.00</strong></div>
+            <div class="d-flex justify-content-between muted"><span>Ahorro estimado</span><span id="saving">$0.00</span></div>
+            <hr>
+            <div class="d-flex justify-content-between"><strong>Total</strong><strong id="total">$0.00</strong></div>
+            <div class="mt-3">
+              <button class="btn btn-primary w-100" onclick="checkout()">Generar plan de compra</button>
+              <button class="btn btn-outline-secondary w-100 mt-2" onclick="saveList()">Guardar lista</button>
+            </div>
+            <div class="alert alert-info mt-3 mb-0" role="alert">
+              <strong>Mejor opción: </strong><span id="bestShop">—</span>
+              <div class="muted small" id="bestDetails">—</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- MAP -->
+    <section id="map" class="app-section">
+      <h3>Mapa de tiendas</h3>
+      <p class="muted">Vista simulada. En una implementación real se integraría Google Maps o Leaflet.</p>
+
+      <div class="card-ghost">
+        <div style="height:420px; border-radius:10px; overflow:hidden; display:flex; align-items:center; justify-content:center; background:linear-gradient(135deg,#eaf7ff,#f3fbf7);">
+          <div class="text-center muted">
+            <h5>🗺 Mapa interactivo (simulado)</h5>
+            <p>Marcadores: Walmart Altabrisa, Soriana Montejo, Chedraui Itzaes</p>
+            <div class="d-flex gap-2 justify-content-center mt-2">
+              <button class="btn btn-outline-primary btn-sm" onclick="focusStore(0)">Walmart</button>
+              <button class="btn btn-outline-success btn-sm" onclick="focusStore(1)">Soriana</button>
+              <button class="btn btn-outline-warning btn-sm" onclick="focusStore(2)">Chedraui</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="row mt-3" id="storeList">
+        <!-- tiendas inyectadas -->
+      </div>
+    </section>
+
+    <!-- PROFILE -->
+    <section id="profile" class="app-section">
+      <h3>Mi perfil</h3>
+      <div class="row g-3">
+        <div class="col-md-4">
+          <div class="card-ghost text-center">
+            <div style="width:80px; height:80px; border-radius:50%; background:var(--primary); color:white; display:inline-flex; align-items:center; justify-content:center; font-size:2rem;">👤</div>
+            <h5 id="profileName">Juan Pérez</h5>
+            <p class="muted" id="profileEmail">juan.perez@email.com</p>
+            <button class="btn btn-outline-secondary btn-sm w-100" onclick="logout()">Cerrar sesión</button>
+          </div>
+          <div class="card-ghost mt-3">
+            <h6>Preferencias</h6>
+            <div class="form-check form-switch mt-2">
+              <input class="form-check-input" type="checkbox" id="prefOffers" checked>
+              <label class="form-check-label" for="prefOffers">Notificaciones de ofertas</label>
+            </div>
+            <div class="form-check form-switch mt-2">
+              <input class="form-check-input" type="checkbox" id="prefAlerts" checked>
+              <label class="form-check-label" for="prefAlerts">Alertas de precio bajo</label>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-md-8">
+          <div class="card-ghost">
+            <h5>Tiendas favoritas</h5>
+            <div class="row mt-2" id="favoriteStores"></div>
+
+            <hr>
+            <h5>Productos seguidos</h5>
+            <div id="followedProducts" class="row g-3 mt-2"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- CHAT -->
+    <section id="chat" class="app-section">
+      <h3>Asistente SmartPrice</h3>
+      <div class="row">
+        <div class="col-md-8">
+          <div class="card-ghost d-flex flex-column">
+            <div class="chat-window" id="chatWindow">
+              <!-- Burbujas se añaden por JS -->
+            </div>
+
+            <div class="mt-3 d-flex gap-2">
+              <input id="chatInput" class="form-control" placeholder="Escribe tu pregunta...">
+              <button class="btn" style="background:var(--primary); color:white" onclick="sendChat()">Enviar</button>
+            </div>
+            <small class="muted mt-2">Ejemplos: "¿Dónde está más barata la leche?", "Muéstrame ofertas".</small>
+          </div>
+        </div>
+
+        <div class="col-md-4">
+          <div class="card-ghost">
+            <h6>Preguntas frecuentes</h6>
+            <div class="d-flex flex-column gap-2 mt-2">
+              <button class="btn btn-light btn-sm" onclick="setChatExample('¿Dónde está más barata la leche?')">¿Dónde está más barata la leche?</button>
+              <button class="btn btn-light btn-sm" onclick="setChatExample('Necesito comprar huevo')">Necesito comprar huevo</button>
+              <button class="btn btn-light btn-sm" onclick="setChatExample('Muéstrame ofertas de hoy')">Muéstrame ofertas de hoy</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <footer class="footer">
+    © 2025 SmartPrice — Mockup | Diseñado para demostración. — Hecho por Jhoana
+  </footer>
+
+  <!-- Scripts -->
+  <script>
+    /***********************
+     *  Datos de ejemplo
+     ***********************/
+    const PRODUCTS = [
+      { id:1, name:'Leche Alpura 1L', category:'Lácteos', image:'https://via.placeholder.com/600x360/24A9DC/ffffff?text=Leche', description:'Leche entera pasteurizada 1L', stores:[
+        {name:'Walmart Altabrisa', price:23.5, distance:1.2, offer:'🟢'}, {name:'Soriana Montejo', price:24.3, distance:2.1, offer:'🟢'}, {name:'Chedraui Itzaes', price:22.9, distance:3.5, offer:'🟡'}
+      ]},
+      { id:2, name:'Huevo Blanco 30pz', category:'Abarrotes', image:'https://via.placeholder.com/600x360/EB692C/ffffff?text=Huevo', description:'Paquete de 30 huevos blancos', stores:[
+        {name:'Walmart Altabrisa', price:68.5, distance:1.2, offer:'🟢'}, {name:'Soriana Montejo', price:65.9, distance:2.1, offer:'🟡'}, {name:'Chedraui Itzaes', price:70.2, distance:3.5, offer:'🟢'}
+      ]},
+      { id:3, name:'Frijol Negro 1kg', category:'Legumbres', image:'https://via.placeholder.com/600x360/36C07E/ffffff?text=Frijol', description:'Frijol negro 1kg', stores:[
+        {name:'Walmart Altabrisa', price:38.0, distance:1.2, offer:'🟡'}, {name:'Soriana Montejo', price:35.5, distance:2.1, offer:'🟢'}, {name:'Chedraui Itzaes', price:36.8, distance:3.5, offer:'🟢'}
+      ]},
+      { id:4, name:'Arroz SOS 1kg', category:'Granos', image:'https://via.placeholder.com/600x360/24A9DC/ffffff?text=Arroz', description:'Arroz blanco 1kg', stores:[
+        {name:'Walmart Altabrisa', price:28.5, distance:1.2, offer:'🟢'}, {name:'Soriana Montejo', price:26.9, distance:2.1, offer:'🟢'}, {name:'Chedraui Itzaes', price:27.8, distance:3.5, offer:'🟡'}
+      ]},
+      { id:5, name:'Aceite Capullo 1L', category:'Aceites', image:'https://via.placeholder.com/600x360/EB692C/ffffff?text=Aceite', description:'Aceite vegetal 1L', stores:[
+        {name:'Walmart Altabrisa', price:45.0, distance:1.2, offer:'🟡'}, {name:'Soriana Montejo', price:42.5, distance:2.1, offer:'🟢'}, {name:'Chedraui Itzaes', price:43.8, distance:3.5, offer:'🟢'}
+      ]}
+    ];
+
+    const STORES = [
+      {name:'Walmart Altabrisa', lat:20.983113, lng:-89.624222, avg:'$$'},
+      {name:'Soriana Montejo', lat:20.987654, lng:-89.618765, avg:'$$'},
+      {name:'Chedraui Itzaes', lat:20.976543, lng:-89.632109, avg:'$'}
+    ];
+
+    /***********************
+     *  Estado y utilidades
+     ***********************/
+    let state = {
+      cart: JSON.parse(localStorage.getItem('sp_cart')||'[]'),
+      followed: JSON.parse(localStorage.getItem('sp_followed')||'[]'),
+      currentUser: localStorage.getItem('sp_user') || null,
+      currentProduct: null
+    };
+
+    function saveState(){
+      localStorage.setItem('sp_cart', JSON.stringify(state.cart));
+      localStorage.setItem('sp_followed', JSON.stringify(state.followed));
+      if(state.currentUser) localStorage.setItem('sp_user', state.currentUser);
+      updateCartUI();
+    }
+
+    /***********************
+     * NAVIGATION (SPA)
+     ***********************/
+    const sections = document.querySelectorAll('section.app-section');
+    function navigateTo(id){
+      sections.forEach(s=>s.classList.remove('active'));
+      document.getElementById(id).classList.add('active');
+      window.scrollTo({top:0,behavior:'smooth'});
+      // highlight nav link
+      document.querySelectorAll('nav .nav-link').forEach(a=>a.classList.remove('active'));
+      const navs = Array.from(document.querySelectorAll('nav .nav-link'));
+      const match = navs.find(a => a.getAttribute('onclick') && a.getAttribute('onclick').includes(id));
+      if(match) match.classList.add('active');
+    }
+
+    // initial
+    window.addEventListener('load', ()=> {
+      renderProducts();
+      populateCompare();
+      renderStores();
+      updateProfile();
+      updateCartUI();
+      // default splash if no user
+      navigateTo('splash');
+    });
+
+    /***********************
+     * RENDER PRODUCTS (HOME)
+     ***********************/
+    function renderProducts(){
+      const cont = document.getElementById('productsContainer');
+      cont.innerHTML = '';
+      PRODUCTS.forEach(p=>{
+        const el = document.createElement('div');
+        el.className = 'card-ghost';
+        el.innerHTML = `
+          <div style="position:relative;">
+            <img src="${p.image}" alt="${p.name}" class="p-thumb">
+            <div class="offer-badge">Oferta</div>
+          </div>
+          <div style="padding-top:10px">
+            <h5 style="margin:0">${p.name}</h5>
+            <div class="muted">${p.category}</div>
+            <div class="d-flex justify-content-between align-items-center mt-2">
+              <div>
+                <div class="fw-bold">$${p.stores[0].price.toFixed(2)}</div>
+                <div class="muted small">${p.stores[0].name}</div>
+              </div>
+              <div class="d-flex flex-column">
+                <button class="btn btn-sm btn-primary mb-1" onclick="openProduct(${p.id})">Ver</button>
+                <button class="btn btn-sm btn-outline-secondary" onclick="addToCart(${p.id})">Añadir</button>
+              </div>
+            </div>
+          </div>
+        `;
+        cont.appendChild(el);
+      });
+    }
+
+    /***********************
+     * SEARCH
+     ***********************/
+    function goSearch(){
+      const q = (document.getElementById('searchInput')?.value || document.getElementById('globalSearch')?.value || '').trim();
+      navigateTo('search');
+      const res = PRODUCTS.filter(p => p.name.toLowerCase().includes(q.toLowerCase()) || p.category.toLowerCase().includes(q.toLowerCase()));
+      const container = document.getElementById('searchResults');
+      container.innerHTML = '';
+      if(res.length===0){
+        container.innerHTML = `<div class="card-ghost">No se encontraron productos para "<strong>${q}</strong>".</div>`;
+        return;
+      }
+      const grid = document.createElement('div');
+      grid.className = 'product-grid';
+      res.forEach(p=>{
+        const card = document.createElement('div');
+        card.className='card-ghost';
+        card.innerHTML = `
+          <div style="display:flex; gap:12px;">
+            <img src="${p.image}" style="width:120px; height:80px; object-fit:cover; border-radius:8px;">
+            <div style="flex:1">
+              <h6 style="margin:0">${p.name}</h6>
+              <div class="muted">${p.category}</div>
+              <div class="mt-2">
+                <button class="btn btn-sm btn-primary" onclick="openProduct(${p.id})">Ver</button>
+                <button class="btn btn-sm btn-outline-secondary" onclick="addToCart(${p.id})">Añadir</button>
+              </div>
+            </div>
+          </div>
+        `;
+        grid.appendChild(card);
+      });
+      container.appendChild(grid);
+    }
+
+    /***********************
+     * PRODUCT DETAIL
+     ***********************/
+    let currentProductId = null;
+    function openProduct(id){
+      const p = PRODUCTS.find(x=>x.id===id);
+      if(!p) return;
+      currentProductId = id;
+      document.getElementById('productImage').src = p.image;
+      document.getElementById('productTitle').textContent = p.name;
+      document.getElementById('productDesc').textContent = p.description;
+      document.getElementById('productPrice').textContent = `$${p.stores[0].price.toFixed(2)}`;
+      document.getElementById('productStore').textContent = p.stores[0].name;
+      // stores
+      const storesEl = document.getElementById('productStores');
+      storesEl.innerHTML = '';
+      p.stores.forEach(s=>{
+        const col = document.createElement('div');
+        col.className='col-md-4';
+        col.innerHTML = `
+          <div class="card-ghost text-center ${s===p.stores[0]?'border-success':''}">
+            <div class="fw-bold">${s.name}</div>
+            <div class="fs-5 mt-1">$${s.price.toFixed(2)}</div>
+            <div class="muted">${s.distance} km</div>
+            <div class="mt-2">${s.offer}</div>
+            <div class="mt-2"><button class="btn btn-sm btn-outline-primary" onclick="addToCart(${p.id})">Agregar</button></div>
+          </div>
+        `;
+        storesEl.appendChild(col);
+      });
+      navigateTo('product');
+    }
+
+    function followProduct(id){
+      if(!state.followed.includes(id)){
+        state.followed.push(id);
+        saveState();
+        renderFollowed();
+        alert('Producto añadido a tus seguidos.');
+      } else {
+        alert('Ya sigues este producto.');
+      }
+    }
+
+    /***********************
+     * CART
+     ***********************/
+    function addToCart(id){
+      const p = PRODUCTS.find(x=>x.id===id);
+      if(!p) return;
+      const item = state.cart.find(i=>i.id===id);
+      if(item) item.qty += 1;
+      else state.cart.push({id:id, qty:1, name:p.name, price:p.stores[0].price});
+      saveState();
+      updateCartUI();
+      alert('Producto añadido al carrito.');
+    }
+
+    function updateCartUI(){
+      document.getElementById('cartCount').textContent = state.cart.reduce((s,i)=>s+i.qty,0);
+      // render cart items
+      const container = document.getElementById('cartItems');
+      if(!container) return;
+      container.innerHTML = '';
+      if(state.cart.length===0){
+        container.innerHTML = `<div class="card-ghost">Tu carrito está vacío.</div>`;
+      } else {
+        state.cart.forEach(ci=>{
+          const p = PRODUCTS.find(x=>x.id===ci.id);
+          const el = document.createElement('div');
+          el.className='card-ghost mb-2';
+          el.innerHTML = `
+            <div class="d-flex align-items-center">
+              <img src="${p.image}" style="width:88px; height:64px; object-fit:cover; border-radius:8px; margin-right:12px;">
+              <div style="flex:1">
+                <div class="fw-bold">${p.name}</div>
+                <div class="muted small">${p.stores[0].name}</div>
+              </div>
+              <div style="width:120px; display:flex; gap:6px; align-items:center;">
+                <button class="btn btn-sm btn-outline-secondary" onclick="changeQty(${ci.id},-1)">-</button>
+                <div>${ci.qty}</div>
+                <button class="btn btn-sm btn-outline-secondary" onclick="changeQty(${ci.id},1)">+</button>
+              </div>
+              <div style="width:90px; text-align:right;">
+                <div class="fw-bold">$${(ci.price*ci.qty).toFixed(2)}</div>
+                <button class="btn btn-sm btn-link text-danger" onclick="removeFromCart(${ci.id})">Eliminar</button>
+              </div>
+            </div>
+          `;
+          container.appendChild(el);
         });
-    </script>
+      }
+      // totals
+      const subtotal = state.cart.reduce((s,i)=>s + (i.price * i.qty),0);
+      const saving = Math.max(0, subtotal * 0.08);
+      document.getElementById('subtotal').textContent = `$${subtotal.toFixed(2)}`;
+      document.getElementById('saving').textContent = `$${saving.toFixed(2)}`;
+      document.getElementById('total').textContent = `$${(subtotal - saving).toFixed(2)}`;
+      // best option mock
+      if(state.cart.length>0){
+        document.getElementById('bestShop').textContent = 'Walmart Altabrisa';
+        document.getElementById('bestDetails').textContent = `Total estimado $${(subtotal - saving).toFixed(2)} • 1.2 km`;
+      } else {
+        document.getElementById('bestShop').textContent = '—';
+        document.getElementById('bestDetails').textContent = '—';
+      }
+    }
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    function changeQty(id, delta){
+      const item = state.cart.find(i=>i.id===id);
+      if(!item) return;
+      item.qty += delta;
+      if(item.qty<=0) state.cart = state.cart.filter(i=>i.id!==id);
+      saveState();
+      updateCartUI();
+    }
+
+    function removeFromCart(id){
+      state.cart = state.cart.filter(i=>i.id!==id);
+      saveState();
+      updateCartUI();
+    }
+
+    function checkout(){
+      if(state.cart.length===0){ alert('Tu carrito está vacío.'); return; }
+      alert('Plan de compra generado. (Simulado)');
+      state.cart = [];
+      saveState();
+      updateCartUI();
+      navigateTo('home');
+    }
+
+    function saveList(){
+      alert('Lista guardada en tu cuenta (simulado).');
+    }
+
+    /***********************
+     * COMPARE
+     ***********************/
+    function populateCompare(){
+      const sel = document.getElementById('compareSelect');
+      sel.innerHTML = PRODUCTS.map(p=>`<option value="${p.id}">${p.name}</option>`).join('');
+      renderComparison();
+    }
+
+    function renderComparison(){
+      const pid = parseInt(document.getElementById('compareSelect').value);
+      const p = PRODUCTS.find(x=>x.id===pid);
+      const container = document.getElementById('compareTable');
+      container.innerHTML = `
+        <div class="table-responsive card-ghost">
+          <table class="table">
+            <thead>
+              <tr><th>Tienda</th><th>Precio</th><th>Distancia</th><th>Vigencia</th><th>Acciones</th></tr>
+            </thead>
+            <tbody>
+              ${p.stores.map((s,idx)=>`
+                <tr class="${idx===0?'best-row':''}">
+                  <td><strong>${s.name}</strong> ${idx===0?'<span class="badge bg-success ms-2">Mejor</span>':''}</td>
+                  <td>$${s.price.toFixed(2)}</td>
+                  <td>${s.distance} km</td>
+                  <td>${s.offer} <div class="muted small">${s.offer==='🟢'?'Vigente': s.offer==='🟡'?'Por vencer':'Caducada'}</div></td>
+                  <td><button class="btn btn-sm btn-primary" onclick="addToCart(${p.id})">Agregar</button></td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
+        </div>
+      `;
+    }
+
+    /***********************
+     * MAP & STORES
+     ***********************/
+    function renderStores(){
+      const list = document.getElementById('storeList');
+      list.innerHTML = '';
+      STORES.forEach((s,i)=>{
+        const el = document.createElement('div');
+        el.className='col-md-4 mb-3';
+        el.innerHTML = `<div class="card-ghost">
+          <h6>${s.name}</h6>
+          <div class="muted small">📍 ${s.lat.toFixed(3)}, ${s.lng.toFixed(3)} • ${s.avg}</div>
+          <div class="mt-2"><button class="btn btn-sm btn-outline-primary" onclick="navigateTo('compare'); document.getElementById('compareSelect').value=1; renderComparison()">Ver productos</button> <button class="btn btn-sm btn-outline-secondary" onclick="alert('Cómo llegar (simulado)')">Cómo llegar</button></div>
+        </div>`;
+        list.appendChild(el);
+      });
+    }
+
+    function focusStore(i){
+      navigateTo('map');
+      alert(`Centrándo mapa en: ${STORES[i].name} (simulado)`);
+    }
+
+    /***********************
+     * PROFILE & FOLLOWED
+     ***********************/
+    function updateProfile(){
+      document.getElementById('profileName').textContent = state.currentUser || 'Invitado';
+      document.getElementById('profileEmail').textContent = state.currentUser ? state.currentUser+'@demo.com' : 'invitado@demo';
+      renderFollowed();
+    }
+
+    function renderFollowed(){
+      const cont = document.getElementById('followedProducts');
+      cont.innerHTML = '';
+      if(state.followed.length===0){ cont.innerHTML = '<div class="muted">No sigues productos.</div>'; return; }
+      state.followed.forEach(id=>{
+        const p = PRODUCTS.find(x=>x.id===id);
+        const el = document.createElement('div');
+        el.className='col-md-6';
+        el.innerHTML = `<div class="card-ghost d-flex justify-content-between align-items-start">
+          <div>
+            <h6 style="margin:0">${p.name}</h6>
+            <div class="muted small">$${p.stores[0].price.toFixed(2)}</div>
+          </div>
+          <button class="btn btn-sm btn-outline-danger" onclick="unfollow(${id})">Dejar de seguir</button>
+        </div>`;
+        cont.appendChild(el);
+      });
+    }
+
+    function unfollow(id){
+      state.followed = state.followed.filter(x=>x!==id);
+      saveState();
+      renderFollowed();
+    }
+
+    function renderFavoriteStores(){
+      const cont = document.getElementById('favoriteStores');
+      cont.innerHTML = STORES.map(s=>`<div class="col-md-4"><div class="muted small">${s.name}</div></div>`).join('');
+    }
+    renderFavoriteStores();
+
+    /***********************
+     * CHAT SIMULADO
+     ***********************/
+    function setChatExample(txt){
+      document.getElementById('chatInput').value = txt;
+    }
+
+    function sendChat(){
+      const input = document.getElementById('chatInput');
+      const msg = input.value.trim();
+      if(!msg) return;
+      appendBubble(msg,'user');
+      input.value='';
+      // respuestas simples
+      setTimeout(()=>{
+        let resp = "Lo siento, no tengo información sobre eso.";
+        const m = msg.toLowerCase();
+        if(m.includes('leche')) resp = "En Soriana, la leche cuesta $23.50 y está a 2.1 km de ti.";
+        else if(m.includes('huevo')) resp = "Walmart: Huevo 30pz $68.50 • 1.2 km.";
+        else if(m.includes('frijol')) resp = "Chedraui: Frijol 1kg $35.50 • 3.5 km.";
+        else if(m.includes('ofertas')) resp = "Hay ofertas en Leche, Aceite y Arroz. ¿Quieres comparar?";
+        appendBubble(resp,'bot');
+      },900);
+    }
+
+    function appendBubble(text,who){
+      const w = document.getElementById('chatWindow');
+      const b = document.createElement('div');
+      b.className = 'bubble ' + (who==='user' ? 'user' : 'bot');
+      b.innerHTML = (who==='user'?'<strong>Tú:</strong> ':'<strong>SmartPrice:</strong> ') + text;
+      w.appendChild(b);
+      w.scrollTop = w.scrollHeight;
+    }
+
+    /***********************
+     * AUTH SIMULADO
+     ***********************/
+    function doLogin(){
+      const e = document.getElementById('loginEmail').value || 'usuario';
+      state.currentUser = e.split('@')[0];
+      saveState();
+      updateProfile();
+      navigateTo('home');
+      alert('Sesión iniciada (simulado).');
+    }
+
+    function logout(){
+      state.currentUser = null;
+      localStorage.removeItem('sp_user');
+      updateProfile();
+      alert('Sesión cerrada (simulado).');
+    }
+
+    /***********************
+     * UTILIDADES
+     ***********************/
+    function focusOnHome(){ navigateTo('home'); }
+  </script>
+
+  <!-- Bootstrap JS -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
-
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Comparar Precios - SmartPrice</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
-</head>
-<body>
-    <nav class="navbar navbar-light bg-white">
-        <div class="container">
-            <a class="navbar-brand fw-bold" href="{{ url_for('home') }}">🛒 SmartPrice</a>
-            <a href="{{ url_for('home') }}" class="btn btn-link">Volver</a>
-        </div>
-    </nav>
-
-    <div class="container mt-4">
-        <div class="row mb-4">
-            <div class="col-12">
-                <div class="card">
-                    <div class="card-body">
-                        <div class="row align-items-center">
-                            <div class="col-md-2">
-                                <img src="{{ product.image }}" class="img-fluid rounded" alt="{{ product.name }}">
-                            </div>
-                            <div class="col-md-10">
-                                <h3 class="card-title">{{ product.name }}</h3>
-                                <p class="card-text text-muted">{{ product.description }}</p>
-                                <span class="badge bg-primary">{{ product.category }}</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <h4 class="mb-3">Comparación de precios</h4>
-
-        <!-- Tabla de comparación -->
-        <div class="table-responsive">
-            <table class="table table-hover comparison-table">
-                <thead>
-                    <tr>
-                        <th>Tienda</th>
-                        <th>Precio</th>
-                        <th>Distancia</th>
-                        <th>Vigencia</th>
-                        <th>Acciones</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for store in product.stores %}
-                    <tr {% if loop.first %}class="best-option"{% endif %}>
-                        <td>
-                            <strong>{{ store.name }}</strong>
-                            {% if loop.first %}
-                            <span class="badge bg-success ms-2">Mejor opción</span>
-                            {% endif %}
-                        </td>
-                        <td class="product-price">${{ store.price }}</td>
-                        <td>{{ store.distance }} km</td>
-                        <td>
-                            <span class="fw-bold">{{ store.offer_valid }}</span>
-                            {% if store.offer_valid == "🟢" %}
-                            <small class="text-muted d-block">Vigente</small>
-                            {% elif store.offer_valid == "🟡" %}
-                            <small class="text-muted d-block">Por vencer</small>
-                            {% else %}
-                            <small class="text-muted d-block">Caducada</small>
-                            {% endif %}
-                        </td>
-                        <td>
-                            <button class="btn btn-primary btn-sm">Agregar al carrito</button>
-                        </td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </div>
-
-        <!-- Modo de comparación -->
-        <div class="row mt-4">
-            <div class="col-12">
-                <h5 class="mb-3">Modo de comparación:</h5>
-                <div class="btn-group" role="group">
-                    <button type="button" class="btn btn-outline-primary active">Mejor Precio</button>
-                    <button type="button" class="btn btn-outline-primary">Más Cercano</button>
-                    <button type="button" class="btn btn-outline-primary">Balance</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-</body>
-</html>
-
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Inicio - SmartPrice</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
-</head>
-<body>
-    <!-- Navbar -->
-    <nav class="navbar navbar-expand-lg navbar-light bg-white">
-        <div class="container">
-            <a class="navbar-brand fw-bold" href="{{ url_for('home') }}">
-                🛒 SmartPrice
-            </a>
-            
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <div class="d-flex w-100">
-                    <input class="form-control search-bar me-2" type="search" placeholder="Buscar productos..." aria-label="Search">
-                    <button class="btn btn-outline-primary" type="submit">Buscar</button>
-                </div>
-                
-                <ul class="navbar-nav ms-auto">
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('compare') }}">
-                            Comparar
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('cart') }}">
-                            Carrito
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('profile') }}">
-                            Perfil
-                        </a>
-                    </li>
-                </ul>
-            </div>
-        </div>
-    </nav>
-
-    <!-- Contenido principal -->
-    <div class="container mt-4">
-        <div class="row">
-            <div class="col-12">
-                <h2 class="fw-bold mb-4">Productos destacados</h2>
-            </div>
-        </div>
-        
-        <div class="row">
-            {% for product in products %}
-            <div class="col-md-4 mb-4">
-                <div class="card product-card h-100">
-                    <div class="position-relative">
-                        <img src="{{ product.image }}" class="card-img-top" alt="{{ product.name }}">
-                        <div class="offer-badge">Oferta</div>
-                    </div>
-                    <div class="card-body d-flex flex-column">
-                        <h5 class="card-title">{{ product.name }}</h5>
-                        <p class="card-text text-muted">{{ product.category }}</p>
-                        
-                        <div class="mt-auto">
-                            <div class="d-flex justify-content-between align-items-center">
-                                <div>
-                                    <span class="product-price">${{ product.stores[0].price }}</span>
-                                    <small class="product-store d-block">{{ product.stores[0].name }}</small>
-                                </div>
-                                <div class="d-flex">
-                                    <span class="me-2">{{ product.stores[0].offer_valid }}</span>
-                                    <a href="{{ url_for('product_detail', product_id=product.id) }}" class="btn btn-primary btn-sm">Ver</a>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            {% endfor %}
-        </div>
-        
-        <div class="row mt-5">
-            <div class="col-12">
-                <h3 class="fw-bold mb-4">Accesos rápidos</h3>
-            </div>
-            <div class="col-md-3 mb-3">
-                <a href="{{ url_for('search') }}" class="card text-decoration-none text-dark h-100">
-                    <div class="card-body text-center">
-                        <h5>🔍 Buscar productos</h5>
-                    </div>
-                </a>
-            </div>
-            <div class="col-md-3 mb-3">
-                <a href="{{ url_for('compare') }}" class="card text-decoration-none text-dark h-100">
-                    <div class="card-body text-center">
-                        <h5>⚖️ Comparar precios</h5>
-                    </div>
-                </a>
-            </div>
-            <div class="col-md-3 mb-3">
-                <a href="{{ url_for('map_view') }}" class="card text-decoration-none text-dark h-100">
-                    <div class="card-body text-center">
-                        <h5>🗺️ Mapa de tiendas</h5>
-                    </div>
-                </a>
-            </div>
-            <div class="col-md-3 mb-3">
-                <a href="{{ url_for('chat') }}" class="card text-decoration-none text-dark h-100">
-                    <div class="card-body text-center">
-                        <h5>🤖 Asistente virtual</h5>
-                    </div>
-                </a>
-            </div>
-        </div>
-    </div>
-
-    <!-- Footer -->
-    <footer class="footer mt-5">
-        <div class="container text-center">
-            <p class="mb-0 text-muted">© 2023 SmartPrice - Tu compra inteligente en Mérida, Yucatán</p>
-        </div>
-    </footer>
-
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-</body>
-</html>
-
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SmartPrice - Tu compra inteligente</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
-</head>
-<body>
-    <div class="splash-screen">
-        <div class="text-center">
-            <div class="splash-logo">
-                🛒 SmartPrice
-            </div>
-            <p class="splash-subtitle">Tu compra inteligente está por comenzar.</p>
-            <div class="mt-4">
-                <a href="{{ url_for('login') }}" class="btn btn-light btn-lg px-4">Comenzar</a>
-            </div>
-        </div>
-    </div>
-
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-</body>
-</html>
-
-
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Iniciar Sesión - SmartPrice</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
-</head>
-<body>
-    <div class="container mt-5">
-        <div class="row justify-content-center">
-            <div class="col-md-6">
-                <div class="auth-container">
-                    <div class="text-center mb-4">
-                        <!-- Logo que redirige a home -->
-                        <a href="{{ url_for('home') }}" style="text-decoration: none;">
-                            <h2 class="fw-bold" style="color: var(--primary-blue);">🛒 SmartPrice</h2>
-                        </a>
-                        <p class="text-muted">Inicia sesión para comparar precios</p>
-                    </div>
-                    
-                    <!-- Formulario que redirige a home -->
-                    <form action="{{ url_for('home') }}" method="get">
-                        <div class="mb-3">
-                            <label for="email" class="form-label">Correo electrónico</label>
-                            <input type="email" class="form-control" id="email" placeholder="tu@email.com">
-                        </div>
-                        
-                        <div class="mb-3">
-                            <label for="password" class="form-label">Contraseña</label>
-                            <input type="password" class="form-control" id="password" placeholder="••••••••">
-                        </div>
-                        
-                        <div class="mb-3 form-check">
-                            <input type="checkbox" class="form-check-input" id="remember">
-                            <label class="form-check-label" for="remember">Mantener sesión iniciada</label>
-                        </div>
-                        
-                        <button type="submit" class="btn btn-primary w-100 py-2">Iniciar sesión</button>
-                    </form>
-                    
-                    <!-- Enlace para entrar directamente -->
-                    <div class="text-center mt-3">
-                        <a href="{{ url_for('home') }}" class="btn btn-outline-primary btn-sm">Entrar como invitado</a>
-                    </div>
-                    
-                    <div class="text-center mt-2">
-                        <a href="#" class="text-decoration-none">¿Olvidaste tu contraseña?</a>
-                    </div>
-                    
-                    <hr class="my-4">
-                    
-                    <div class="text-center">
-                        <p class="mb-0">¿No tienes una cuenta? <a href="#" class="text-decoration-none fw-bold">Regístrate</a></p>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-</body>
-</html>
-
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mapa de Tiendas - SmartPrice</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
-</head>
-<body>
-    <nav class="navbar navbar-light bg-white">
-        <div class="container">
-            <a class="navbar-brand fw-bold" href="{{ url_for('home') }}">🛒 SmartPrice</a>
-            <a href="{{ url_for('home') }}" class="btn btn-link">Volver</a>
-        </div>
-    </nav>
-
-    <div class="container mt-4">
-        <div class="row">
-            <div class="col-12">
-                <h3 class="mb-4">Mapa de tiendas en Mérida</h3>
-                
-                <!-- Filtros rápidos -->
-                <div class="row mb-4">
-                    <div class="col-md-8">
-                        <div class="btn-group" role="group">
-                            <button type="button" class="btn btn-outline-primary active">Todas las tiendas</button>
-                            <button type="button" class="btn btn-outline-primary">Walmart</button>
-                            <button type="button" class="btn btn-outline-primary">Soriana</button>
-                            <button type="button" class="btn btn-outline-primary">Chedraui</button>
-                        </div>
-                    </div>
-                    <div class="col-md-4">
-                        <div class="input-group">
-                            <input type="text" class="form-control" placeholder="Buscar tienda...">
-                            <button class="btn btn-primary">Buscar</button>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Mapa simulado -->
-                <div class="card">
-                    <div class="card-body p-0">
-                        <div class="map-container">
-                            <div style="height: 400px; background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%); position: relative; display: flex; align-items: center; justify-content: center;">
-                                <div class="text-center text-muted">
-                                    <h4>🗺️ Mapa Interactivo</h4>
-                                    <p>Aquí se mostrarían las tiendas en Mérida</p>
-                                    <small>Integración con Google Maps</small>
-                                </div>
-                                
-                                <!-- Marcadores de tiendas simulados -->
-                                <div style="position: absolute; top: 40%; left: 45%;">
-                                    <div class="bg-primary text-white rounded-pill px-3 py-1">Walmart</div>
-                                </div>
-                                <div style="position: absolute; top: 35%; left: 50%;">
-                                    <div class="bg-success text-white rounded-pill px-3 py-1">Soriana</div>
-                                </div>
-                                <div style="position: absolute; top: 45%; left: 55%;">
-                                    <div class="bg-warning text-white rounded-pill px-3 py-1">Chedraui</div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Lista de tiendas -->
-                <div class="row mt-4">
-                    {% for store in stores %}
-                    <div class="col-md-4 mb-3">
-                        <div class="card">
-                            <div class="card-body">
-                                <h6 class="card-title">{{ store.name }}</h6>
-                                <p class="card-text text-muted small">
-                                    📍 Ubicación: {{ store.lat }}, {{ store.lng }}<br>
-                                    💰 Precios: {{ store.avg_price }}<br>
-                                    🚗 Distancia: {{ loop.index * 1.2 }} km
-                                </p>
-                                <button class="btn btn-outline-primary btn-sm">Ver productos</button>
-                                <button class="btn btn-outline-secondary btn-sm">Cómo llegar</button>
-                            </div>
-                        </div>
-                    </div>
-                    {% endfor %}
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-</body>
-</html>
-
-
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ product.name }} - SmartPrice</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
-</head>
-<body>
-    <nav class="navbar navbar-light bg-white">
-        <div class="container">
-            <a class="navbar-brand fw-bold" href="{{ url_for('home') }}">🛒 SmartPrice</a>
-            <a href="{{ url_for('home') }}" class="btn btn-link">Volver</a>
-        </div>
-    </nav>
-
-    <div class="container mt-4">
-        <div class="row">
-            <!-- Imagen del producto -->
-            <div class="col-md-4">
-                <div class="card">
-                    <img src="{{ product.image }}" class="card-img-top" alt="{{ product.name }}">
-                    <div class="card-body text-center">
-                        <button class="btn btn-primary btn-lg w-100">Agregar al carrito</button>
-                        <button class="btn btn-outline-primary mt-2 w-100">Seguir producto</button>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Información del producto -->
-            <div class="col-md-8">
-                <div class="card">
-                    <div class="card-body">
-                        <h2 class="card-title">{{ product.name }}</h2>
-                        <p class="card-text text-muted">{{ product.description }}</p>
-                        <span class="badge bg-primary">{{ product.category }}</span>
-
-                        <hr>
-
-                        <h5 class="mb-3">Precios actuales:</h5>
-                        <div class="row">
-                            {% for store in product.stores %}
-                            <div class="col-md-4 mb-3">
-                                <div class="card {% if loop.first %}border-success{% endif %}">
-                                    <div class="card-body text-center">
-                                        <h6 class="card-title">{{ store.name }}</h6>
-                                        <div class="product-price fs-4">${{ store.price }}</div>
-                                        <small class="text-muted">{{ store.distance }} km</small>
-                                        <div class="mt-2">{{ store.offer_valid }}</div>
-                                        {% if loop.first %}
-                                        <span class="badge bg-success mt-1">Mejor precio</span>
-                                        {% endif %}
-                                    </div>
-                                </div>
-                            </div>
-                            {% endfor %}
-                        </div>
-
-                        <div class="mt-3">
-                            <a href="{{ url_for('compare', product_id=product.id) }}" class="btn btn-warning">Comparar precios completos</a>
-                            <button class="btn btn-outline-secondary">Reportar precio incorrecto</button>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Historial de precios (simulado) -->
-                <div class="card mt-4">
-                    <div class="card-body">
-                        <h5 class="card-title">Historial de precios (últimos 30 días)</h5>
-                        <div class="text-center py-4">
-                            <p class="text-muted">Gráfica de precios simulada</p>
-                            <div style="height: 200px; background: linear-gradient(180deg, var(--light-gray) 0%, var(--medium-gray) 100%); border-radius: 8px;" class="d-flex align-items-center justify-content-center">
-                                <span class="text-muted">📈 Gráfico de evolución de precios</span>
-                            </div>
-                            <small class="text-muted mt-2">El precio más bajo fue ${{ product.stores[1].price }} hace 2 semanas</small>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-</body>
-</html>
-
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mi Perfil - SmartPrice</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
-</head>
-<body>
-    <nav class="navbar navbar-light bg-white">
-        <div class="container">
-            <a class="navbar-brand fw-bold" href="{{ url_for('home') }}">🛒 SmartPrice</a>
-            <a href="{{ url_for('home') }}" class="btn btn-link">Inicio</a>
-        </div>
-    </nav>
-
-    <div class="container mt-4">
-        <div class="row">
-            <div class="col-md-4">
-                <!-- Perfil del usuario -->
-                <div class="card">
-                    <div class="card-body text-center">
-                        <div class="mb-3">
-                            <div style="width: 80px; height: 80px; background-color: var(--primary-blue); border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; color: white; font-size: 2rem;">
-                                👤
-                            </div>
-                        </div>
-                        <h4>Juan Pérez</h4>
-                        <p class="text-muted">juan.perez@email.com</p>
-                        <p class="text-muted"><small>Miembro desde Enero 2023</small></p>
-                        
-                        <button class="btn btn-outline-primary btn-sm w-100 mb-2">Editar perfil</button>
-                        <button class="btn btn-outline-secondary btn-sm w-100">Cambiar contraseña</button>
-                    </div>
-                </div>
-
-                <!-- Preferencias -->
-                <div class="card mt-3">
-                    <div class="card-body">
-                        <h6>Preferencias</h6>
-                        
-                        <div class="form-check form-switch mb-2">
-                            <input class="form-check-input" type="checkbox" checked>
-                            <label class="form-check-label">Notificaciones de ofertas</label>
-                        </div>
-                        
-                        <div class="form-check form-switch mb-2">
-                            <input class="form-check-input" type="checkbox" checked>
-                            <label class="form-check-label">Alertas de precio bajo</label>
-                        </div>
-                        
-                        <div class="form-check form-switch mb-2">
-                            <input class="form-check-input" type="checkbox">
-                            <label class="form-check-label">Modo oscuro</label>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="col-md-8">
-                <!-- Tiendas favoritas -->
-                <div class="card">
-                    <div class="card-body">
-                        <h5 class="card-title">Mis tiendas favoritas</h5>
-                        <div class="row">
-                            <div class="col-md-4 mb-2">
-                                <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" checked>
-                                    <label class="form-check-label">Walmart</label>
-                                </div>
-                            </div>
-                            <div class="col-md-4 mb-2">
-                                <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" checked>
-                                    <label class="form-check-label">Soriana</label>
-                                </div>
-                            </div>
-                            <div class="col-md-4 mb-2">
-                                <div class="form-check">
-                                    <input class="form-check-input" type="checkbox">
-                                    <label class="form-check-label">Chedraui</label>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Productos seguidos -->
-                <div class="card mt-3">
-                    <div class="card-body">
-                        <h5 class="card-title">Productos que sigo</h5>
-                        <div class="row">
-                            <div class="col-md-6 mb-3">
-                                <div class="card product-card">
-                                    <div class="card-body">
-                                        <div class="d-flex justify-content-between align-items-start">
-                                            <div>
-                                                <h6>Leche Alpura 1L</h6>
-                                                <small class="text-muted">Precio actual: $23.50</small>
-                                                <br>
-                                                <small class="text-success">¡Precio bajo!</small>
-                                            </div>
-                                            <button class="btn btn-outline-danger btn-sm">Dejar de seguir</button>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-md-6 mb-3">
-                                <div class="card product-card">
-                                    <div class="card-body">
-                                        <div class="d-flex justify-content-between align-items-start">
-                                            <div>
-                                                <h6>Huevo Blanco 30pz</h6>
-                                                <small class="text-muted">Precio actual: $68.50</small>
-                                                <br>
-                                                <small class="text-muted">Precio objetivo: $65.00</small>
-                                            </div>
-                                            <button class="btn btn-outline-danger btn-sm">Dejar de seguir</button>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Historial de búsquedas -->
-                <div class="card mt-3">
-                    <div class="card-body">
-                        <h5 class="card-title">Historial reciente</h5>
-                        <ul class="list-group list-group-flush">
-                            <li class="list-group-item d-flex justify-content-between align-items-center">
-                                Leche Alpura 1L
-                                <small class="text-muted">Hoy</small>
-                            </li>
-                            <li class="list-group-item d-flex justify-content-between align-items-center">
-                                Huevo Blanco 30pz
-                                <small class="text-muted">Ayer</small>
-                            </li>
-                            <li class="list-group-item d-flex justify-content-between align-items-center">
-                                Frijol Negro 1kg
-                                <small class="text-muted">Hace 3 días</small>
-                            </li>
-                        </ul>
-                    </div>
-                </div>
-
-                <!-- Cerrar sesión -->
-                <div class="card mt-3 border-danger">
-                    <div class="card-body text-center">
-                        <button class="btn btn-outline-danger">Cerrar sesión</button>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-</body>
-</html>
-
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Buscar Productos - SmartPrice</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
-</head>
-<body>
-    <nav class="navbar navbar-light bg-white">
-        <div class="container">
-            <a class="navbar-brand fw-bold" href="{{ url_for('home') }}">🛒 SmartPrice</a>
-            <form class="d-flex w-50" action="{{ url_for('search') }}" method="get">
-                <input class="form-control search-bar me-2" type="search" name="q" placeholder="Buscar productos..." value="{{ query }}">
-                <button class="btn btn-outline-primary" type="submit">Buscar</button>
-            </form>
-            <a href="{{ url_for('home') }}" class="btn btn-link">Cancelar</a>
-        </div>
-    </nav>
-
-    <div class="container mt-4">
-        {% if query %}
-            <h4 class="mb-4">Resultados para "{{ query }}"</h4>
-        {% else %}
-            <h4 class="mb-4">Todos los productos</h4>
-        {% endif %}
-
-        <!-- Filtros -->
-        <div class="row mb-4">
-            <div class="col-md-3">
-                <select class="form-select">
-                    <option>Todas las tiendas</option>
-                    <option>Walmart</option>
-                    <option>Soriana</option>
-                    <option>Chedraui</option>
-                </select>
-            </div>
-            <div class="col-md-3">
-                <select class="form-select">
-                    <option>Distancia: Cualquiera</option>
-                    <option>Menos de 1 km</option>
-                    <option>1-3 km</option>
-                    <option>3-5 km</option>
-                </select>
-            </div>
-            <div class="col-md-3">
-                <select class="form-select">
-                    <option>Todas las categorías</option>
-                    <option>Lácteos</option>
-                    <option>Abarrotes</option>
-                    <option>Legumbres</option>
-                </select>
-            </div>
-        </div>
-
-        <!-- Resultados -->
-        <div class="row">
-            {% for product in products %}
-            <div class="col-md-6 mb-3">
-                <div class="card product-card">
-                    <div class="card-body">
-                        <div class="row">
-                            <div class="col-3">
-                                <img src="{{ product.image }}" class="img-fluid rounded" alt="{{ product.name }}">
-                            </div>
-                            <div class="col-9">
-                                <h5 class="card-title">{{ product.name }}</h5>
-                                <p class="card-text text-muted small">{{ product.category }}</p>
-                                
-                                <div class="row">
-                                    {% for store in product.stores %}
-                                    <div class="col-4">
-                                        <div class="border rounded p-2 text-center">
-                                            <small class="fw-bold">{{ store.name }}</small>
-                                            <div class="product-price">${{ store.price }}</div>
-                                            <small class="text-muted">{{ store.distance }} km</small>
-                                            <div>{{ store.offer_valid }}</div>
-                                        </div>
-                                    </div>
-                                    {% endfor %}
-                                </div>
-                                
-                                <div class="mt-2">
-                                    <a href="{{ url_for('compare', product_id=product.id) }}" class="btn btn-primary btn-sm">Comparar precios</a>
-                                    <a href="{{ url_for('product_detail', product_id=product.id) }}" class="btn btn-outline-primary btn-sm">Ver detalles</a>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            {% endfor %}
-        </div>
-    </div>
-
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-</body>
-</html>
-
-:root {
-  --primary-blue: #24A9DC;
-  --primary-orange: #EB692C;
-  --white: #FFFFFF;
-  --accent-green: #36C07E;
-  --text-black: #000000;
-  --light-gray: #f8f9fa;
-  --medium-gray: #e9ecef;
-  --dark-gray: #6c757d;
-}
-
-body {
-  font-family: 'Poppins', sans-serif;
-  color: var(--text-black);
-  background-color: var(--light-gray);
-}
-
-.navbar-brand {
-  font-weight: 700;
-  color: var(--primary-blue) !important;
-}
-
-.btn-primary {
-  background-color: var(--primary-blue);
-  border-color: var(--primary-blue);
-}
-
-.product-card {
-  border: none;
-  border-radius: 12px;
-  box-shadow: 0 4px 6px rgba(0,0,0,0.05);
-  transition: transform 0.3s ease;
-}
-
-.product-card:hover {
-  transform: translateY(-5px);
-}
-
-.splash-screen {
-  height: 100vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  background: linear-gradient(135deg, var(--primary-blue) 0%, #1d8bb8 100%);
-  color: white;
-}
-
-.splash-logo {
-  font-size: 3rem;
-  font-weight: 700;
-}
 
 
 
