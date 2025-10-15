@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Carrito - SmartPrice</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+</head>
+<body>
+    <nav class="navbar navbar-light bg-white">
+        <div class="container">
+            <a class="navbar-brand fw-bold" href="{{ url_for('home') }}">🛒 SmartPrice</a>
+            <a href="{{ url_for('home') }}" class="btn btn-link">Seguir comprando</a>
+        </div>
+    </nav>
+
+    <div class="container mt-4">
+        <div class="row">
+            <div class="col-md-8">
+                <h3 class="mb-4">Tu carrito de compras</h3>
+                
+                <!-- Productos en el carrito -->
+                <div class="card mb-3">
+                    <div class="card-body">
+                        <div class="row align-items-center">
+                            <div class="col-2">
+                                <img src="https://via.placeholder.com/80x80/24A9DC/FFFFFF?text=L" class="img-fluid rounded" alt="Leche">
+                            </div>
+                            <div class="col-4">
+                                <h6 class="mb-0">Leche Alpura 1L</h6>
+                                <small class="text-muted">Lácteos</small>
+                            </div>
+                            <div class="col-2">
+                                <div class="input-group input-group-sm">
+                                    <button class="btn btn-outline-secondary">-</button>
+                                    <input type="text" class="form-control text-center" value="1">
+                                    <button class="btn btn-outline-secondary">+</button>
+                                </div>
+                            </div>
+                            <div class="col-2">
+                                <span class="product-price">$23.50</span>
+                            </div>
+                            <div class="col-2">
+                                <button class="btn btn-outline-danger btn-sm">Eliminar</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card mb-3">
+                    <div class="card-body">
+                        <div class="row align-items-center">
+                            <div class="col-2">
+                                <img src="https://via.placeholder.com/80x80/EB692C/FFFFFF?text=H" class="img-fluid rounded" alt="Huevo">
+                            </div>
+                            <div class="col-4">
+                                <h6 class="mb-0">Huevo Blanco 30pz</h6>
+                                <small class="text-muted">Abarrotes</small>
+                            </div>
+                            <div class="col-2">
+                                <div class="input-group input-group-sm">
+                                    <button class="btn btn-outline-secondary">-</button>
+                                    <input type="text" class="form-control text-center" value="1">
+                                    <button class="btn btn-outline-secondary">+</button>
+                                </div>
+                            </div>
+                            <div class="col-2">
+                                <span class="product-price">$68.50</span>
+                            </div>
+                            <div class="col-2">
+                                <button class="btn btn-outline-danger btn-sm">Eliminar</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Agregar más productos -->
+                <div class="card">
+                    <div class="card-body text-center">
+                        <a href="{{ url_for('search') }}" class="btn btn-outline-primary">Agregar más productos</a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Resumen del carrito -->
+            <div class="col-md-4">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">Resumen de compra</h5>
+                        
+                        <div class="d-flex justify-content-between mb-2">
+                            <span>Subtotal:</span>
+                            <span>$92.00</span>
+                        </div>
+                        <div class="d-flex justify-content-between mb-2">
+                            <span>Ahorro estimado:</span>
+                            <span class="text-success">$8.50</span>
+                        </div>
+                        <hr>
+                        <div class="d-flex justify-content-between mb-3">
+                            <strong>Total:</strong>
+                            <strong class="product-price">$92.00</strong>
+                        </div>
+
+                        <!-- Recomendación de tienda -->
+                        <div class="alert alert-success">
+                            <h6>🏪 Mejor opción:</h6>
+                            <p class="mb-1"><strong>Walmart Altabrisa</strong></p>
+                            <small>Total: $92.00 • 1.2 km de ti</small>
+                            <br>
+                            <small class="text-muted">Ahorras $8.50 vs otras tiendas</small>
+                        </div>
+
+                        <button class="btn btn-primary w-100 mb-2">Generar plan de compra</button>
+                        <button class="btn btn-outline-primary w-100">Guardar lista</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

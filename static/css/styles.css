@@ -1,0 +1,52 @@
+:root {
+  --primary-blue: #24A9DC;
+  --primary-orange: #EB692C;
+  --white: #FFFFFF;
+  --accent-green: #36C07E;
+  --text-black: #000000;
+  --light-gray: #f8f9fa;
+  --medium-gray: #e9ecef;
+  --dark-gray: #6c757d;
+}
+
+body {
+  font-family: 'Poppins', sans-serif;
+  color: var(--text-black);
+  background-color: var(--light-gray);
+}
+
+.navbar-brand {
+  font-weight: 700;
+  color: var(--primary-blue) !important;
+}
+
+.btn-primary {
+  background-color: var(--primary-blue);
+  border-color: var(--primary-blue);
+}
+
+.product-card {
+  border: none;
+  border-radius: 12px;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+  transition: transform 0.3s ease;
+}
+
+.product-card:hover {
+  transform: translateY(-5px);
+}
+
+.splash-screen {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, var(--primary-blue) 0%, #1d8bb8 100%);
+  color: white;
+}
+
+.splash-logo {
+  font-size: 3rem;
+  font-weight: 700;
+}
