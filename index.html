@@ -97,7 +97,7 @@
       box-shadow: var(--shadow);
     }
     .product-card:hover{ transform: translateY(-10px); box-shadow: var(--shadow-hover); }
-    .product-image{ width:100%; height:180px; object-fit:cover; display:block; }
+    .product-image{ width:100%; height:180px; object-fit:cover; display:block; background: #f5f5f5; display: flex; align-items: center; justify-content: center; color: #ccc; font-size: 14px; }
     .product-info{ padding:18px; display:flex; flex-direction:column; gap:10px; }
     .product-title{ font-weight:700; margin:0; color:var(--text); }
     .product-cat{ color:var(--accent); font-weight:600; font-size:0.9rem; background: rgba(30,136,229,0.08); padding:4px 10px; border-radius:20px; display:inline-block; }
@@ -237,13 +237,50 @@
       box-shadow: var(--shadow);
       margin-top: 16px;
     }
+    
+    /* Graph styles */
+    .graph-container {
+      width: 100%;
+      height: 120px;
+      position: relative;
+      overflow: hidden;
+    }
+    .graph-line {
+      fill: none;
+      stroke: var(--accent);
+      stroke-width: 2;
+    }
+    .graph-area {
+      fill: rgba(30, 136, 229, 0.1);
+    }
+    .graph-point {
+      fill: var(--accent);
+      r: 4;
+    }
+    
+    /* Logo styles */
+    .logo-img {
+      width: 48px;
+      height: 48px;
+      border-radius: 12px;
+      object-fit: contain;
+    }
+    .chat-logo {
+      width: 24px;
+      height: 24px;
+      margin-right: 8px;
+      vertical-align: middle;
+    }
   </style>
 </head>
 <body>
   <!-- TOPBAR -->
   <header class="topbar">
     <div class="brand" onclick="goHome()">
-      <div class="logo">SP</div>
+      <!-- Logo actualizado -->
+      <div class="logo">
+        <img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDgiIGhlaWdodD0iNDgiIHZpZXdCb3g9IjAgMCA0OCA0OCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3Qgd2lkdGg9IjQ4IiBoZWlnaHQ9IjQ4IiByeD0iMTIiIGZpbGw9InVybCgjcGFpbnQwX2xpbmVhcikiLz4KPHBhdGggZD0iTTE4IDE4SDE2VjM0SDE4VjE4WiIgZmlsbD0id2hpdGUiLz4KPHBhdGggZD0iTTI0IDE4SDIyVjM0SDI0VjE4WiIgZmlsbD0id2hpdGUiLz4KPHBhdGggZD0iTTMwIDE4SDI4VjM0SDMwVjE4WiIgZmlsbD0id2hpdGUiLz4KPHBhdGggZD0iTTM2IDE4SDM0VjM0SDM2VjE4WiIgZmlsbD0id2hpdGUiLz4KPHBhdGggZD0iTTEyIDI2SDEwVjI4SDEyVjI2WiIgZmlsbD0id2hpdGUiLz4KPHBhdGggZD0iTTM4IDI2SDM2VjI4SDM4VjI2WiIgZmlsbD0id2hpdGUiLz4KPGRlZnM+CjxsaW5lYXJHcmFkaWVudCBpZD0icGFpbnQwX2xpbmVhciIgeDE9IjI0IiB5MT0iMCIgeDI9IjI0IiB5Mj0iNDgiIGdyYWRpZW50VW5pdHM9InVzZXJTcGFjZU9uVXNlIj4KPHN0b3Agc3RvcC1jb2xvcj0iIzFlODhlNSIvPgo8c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiM1ZTM1YjEiLz4KPC9saW5lYXJHcmFkaWVudD4KPC9kZWZzPgo8L3N2Zz4K" alt="SmartPrice" class="logo-img">
+      </div>
       <div class="title">SmartPrice</div>
     </div>
 
@@ -295,7 +332,10 @@
 
         <div style="width:36%; display:flex; justify-content:center;">
           <div class="card" style="width:100%; text-align:center; padding:20px;">
-            <img src="https://images.unsplash.com/photo-1607082348824-0a96f2a4b9da?q=80&w=1200&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" alt="dashboard" style="width:100%; height:240px; object-fit:cover; border-radius:12px; margin-bottom:16px;">
+            <!-- Imagen de placeholder embebida como data URI -->
+            <div style="width:100%; height:240px; border-radius:12px; margin-bottom:16px; background: linear-gradient(135deg, #1e88e5, #5e35b1); display:flex; align-items:center; justify-content:center; color:white; font-weight:bold; font-size:1.2rem;">
+              SmartPrice Demo
+            </div>
             <div style="display:flex; justify-content:space-between; align-items:center;">
               <div style="text-align:left">
                 <div style="font-weight:800; font-size:1.05rem">SmartPrice Pro</div>
@@ -417,7 +457,7 @@
       <div style="display:flex; gap:24px; flex-wrap:wrap;">
         <div style="flex: 1 1 340px;">
           <div class="card" id="productCard">
-            <img id="detailImage" src="" alt="producto" style="width:100%; height:280px; object-fit:cover; border-radius:12px; margin-bottom:16px;">
+            <div id="detailImage" class="product-image"></div>
             <div style="display:flex; justify-content:space-between; align-items:center;">
               <div>
                 <div id="detailTitle" style="font-weight:800; font-size:1.25rem"></div>
@@ -495,10 +535,8 @@
             <div style="margin-top:12px;">
               <h5 style="margin:10px 0 8px 0">Historial de precios</h5>
               <div class="price-history">
-                <div style="text-align:center;">
-                  <div style="font-size:2rem;">📊</div>
-                  <div class="small muted">Gráfica de precios últimos 3 meses</div>
-                  <div class="small muted" style="margin-top:8px;">Precio más bajo: $22.90 • Más alto: $24.50</div>
+                <div class="graph-container" id="priceHistoryGraph">
+                  <!-- Gráfica será generada por JavaScript -->
                 </div>
               </div>
             </div>
@@ -556,20 +594,15 @@
       <div class="card">
         <div style="display:flex; gap:16px; flex-wrap:wrap;">
           <div style="flex:1 1 580px; min-height:380px; border-radius:16px; overflow:hidden; background:white; display:flex; align-items:center; justify-content:center; box-shadow: var(--shadow);">
-            <div style="text-align:center">
-              <div style="font-size:3rem">🗺️</div>
-              <div class="small muted">Mapa interactivo — integra Google Maps en producción</div>
-              <div style="margin-top:16px; display:flex; gap:10px; justify-content:center;">
-                <button class="btn-primary" onclick="focusStore(0)">Walmart Altabrisa</button>
-                <button class="btn-ghost" onclick="focusStore(1)">Soriana Montejo</button>
-                <button class="btn-ghost" onclick="focusStore(2)">Chedraui Itzaes</button>
-              </div>
-              <div style="margin-top:16px;">
-                <div class="small muted">Modo de búsqueda:</div>
-                <div style="display:flex; gap:8px; justify-content:center; margin-top:8px;">
-                  <button class="btn-ghost small active">Mejor Precio</button>
-                  <button class="btn-ghost small">Más Cercano</button>
-                  <button class="btn-ghost small">Balance</button>
+            <!-- Mapa simulado con imagen -->
+            <div style="width:100%; height:100%; background: url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNTgwIiBoZWlnaHQ9IjM4MCIgdmlld0JveD0iMCAwIDU4MCAzODAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSI1ODAiIGhlaWdodD0iMzgwIiBmaWxsPSIjZjVmNWY1Ii8+CjxwYXRoIGQ9Ik0yOTAgMTgwTDMxMCAxNjBMMzMwIDE4MEwzMTAgMjAwTDI5MCAxODBaIiBmaWxsPSIjMWU4OGU1IiBmaWxsLW9wYWNpdHk9IjAuNyIvPgo8Y2lyY2xlIGN4PSIyMDAiIGN5PSIxNTAiIHI9IjgiIGZpbGw9IiNmZjZkMDAiIGZpbGwtb3BhY2l0eT0iMC43Ii8+CjxjaXJjbGUgY3g9IjM1MCIgY3k9IjIyMCIgcj0iOCIgZmlsbD0iIzVlMzViMSIgZmlsbC1vcGFjaXR5PSIwLjciLz4KPGNpcmNsZSBjeD0iNDAwIiBjeT0iMTcwIiByPSI4IiBmaWxsPSIjNDNhMDQ3IiBmaWxsLW9wYWNpdHk9IjAuNyIvPgo8dGV4dCB4PSIyOTAiIHk9IjEwMCIgZm9udC1mYW1pbHk9IkFyaWFsIiBmb250LXNpemU9IjE0IiBmaWxsPSIjNTQ2ZTdhIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj5NYXBhIGRlIHRpZW5kYXMgZW4gTcOpcmlkYTwvdGV4dD4KPHRleHQgeD0iMjAwIiB5PSIxNzAiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC1zaXplPSIxMiIgZmlsbD0iIzU0NmU3YSIgdGV4dC1hbmNob3I9Im1pZGRsZSI+V2FsbWFydDwvdGV4dD4KPHRleHQgeD0iMzUwIiB5PSIyNDAiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC1zaXplPSIxMiIgZmlsbD0iIzU0NmU3YSIgdGV4dC1hbmNob3I9Im1pZGRsZSI+U29yaWFuYTwvdGV4dD4KPHRleHQgeD0iNDAwIiB5PSIxOTAiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC1zaXplPSIxMiIgZmlsbD0iIzU0NmU3YSIgdGV4dC1hbmNob3I9Im1pZGRsZSI+Q2hlZHJhdWk8L3RleHQ+Cjwvc3ZnPgo=') center/cover no-repeat; display:flex; align-items:flex-end; justify-content:center; padding-bottom:20px;">
+              <div style="background:white; padding:12px 20px; border-radius:10px; box-shadow: var(--shadow); text-align:center;">
+                <div style="font-weight:700; margin-bottom:8px;">Mapa interactivo</div>
+                <div class="small muted">Ubicación actual: Mérida, Yucatán</div>
+                <div style="margin-top:12px; display:flex; gap:10px; justify-content:center;">
+                  <button class="btn-primary" onclick="focusStore(0)">Walmart Altabrisa</button>
+                  <button class="btn-ghost" onclick="focusStore(1)">Soriana Montejo</button>
+                  <button class="btn-ghost" onclick="focusStore(2)">Chedraui Itzaes</button>
                 </div>
               </div>
             </div>
@@ -644,8 +677,10 @@
         <div style="flex:1 1 680px;">
           <div class="card">
             <div id="chatWindow" class="chat-window">
-              <div class="bubble bot">
-                <strong>SmartPrice:</strong> Hola, soy tu asistente de compras. Puedo ayudarte a encontrar los mejores precios, ofertas y responder tus preguntas sobre productos. ¿En qué puedo ayudarte?
+              <!-- Mensaje de bienvenida personalizado -->
+              <div class="bubble bot" id="welcomeMessage">
+                <img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCA0OCA0OCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3Qgd2lkdGg9IjQ4IiBoZWlnaHQ9IjQ4IiByeD0iMTIiIGZpbGw9InVybCgjcGFpbnQwX2xpbmVhcikiLz4KPHBhdGggZD0iTTE4IDE4SDE2VjM0SDE4VjE4WiIgZmlsbD0id2hpdGUiLz4KPHBhdGggZD0iTTI0IDE4SDIyVjM0SDI0VjE4WiIgZmlsbD0id2hpdGUiLz4KPHBhdGggZD0iTTMwIDE4SDI4VjM0SDMwVjE4WiIgZmlsbD0id2hpdGUiLz4KPHBhdGggZD0iTTM2IDE4SDM0VjM0SDM2VjE4WiIgZmlsbD0id2hpdGUiLz4KPHBhdGggZD0iTTEyIDI2SDEwVjI4SDEyVjI2WiIgZmlsbD0id2hpdGUiLz4KPHBhdGggZD0iTTM4IDI2SDM2VjI4SDM4VjI2WiIgZmlsbD0id2hpdGUiLz4KPGRlZnM+CjxsaW5lYXJHcmFkaWVudCBpZD0icGFpbnQwX2xpbmVhciIgeDE9IjI0IiB5MT0iMCIgeDI9IjI0IiB5Mj0iNDgiIGdyYWRpZW50VW5pdHM9InVzZXJTcGFjZU9uVXNlIj4KPHN0b3Agc3RvcC1jb2xvcj0iIzFlODhlNSIvPgo8c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiM1ZTM1YjEiLz4KPC9saW5lYXJHcmFkaWVudD4KPC9kZWZzPgo8L3N2Zz4K" alt="SmartPrice" class="chat-logo">
+                <strong>SmartPrice:</strong> ¡Hola! Soy tu asistente de compras. ¿En qué puedo ayudarte hoy?
               </div>
             </div>
             <div style="display:flex; gap:10px; margin-top:12px;">
@@ -692,27 +727,81 @@
   <!-- SCRIPT: Lógica del mockup -->
   <script>
     /* --------------------------
-       Datos de ejemplo
+       Datos de ejemplo con imágenes embebidas
        -------------------------- */
     const PRODUCTS = [
-      { id:1, name:'Leche Alpura 1L', category:'Lácteos', image:'https://images.unsplash.com/photo-1563636619-e9143da7973b?q=80&w=1000&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8bGVjaGV8ZW58MHx8MHx8fDA%3D', description:'Leche entera pasteurizada 1L', stores:[
-        {name:'Walmart Altabrisa', price:23.5, distance:1.2, offer:'🟢'}, {name:'Soriana Montejo', price:24.3, distance:2.1, offer:'🟢'}, {name:'Chedraui Itzaes', price:22.9, distance:3.5, offer:'🟡'}
-      ]},
-      { id:2, name:'Huevo Blanco 30pz', category:'Abarrotes', image:'https://images.unsplash.com/photo-1582722872445-44dc5f7e3c8f?q=80&w=1000&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8aHVldm9zfGVufDB8fDB8fHww', description:'Paquete de 30 huevos blancos', stores:[
-        {name:'Walmart Altabrisa', price:68.5, distance:1.2, offer:'🟢'}, {name:'Soriana Montejo', price:65.9, distance:2.1, offer:'🟡'}, {name:'Chedraui Itzaes', price:70.2, distance:3.5, offer:'🟢'}
-      ]},
-      { id:3, name:'Frijol Negro 1kg', category:'Legumbres', image:'https://images.unsplash.com/photo-1592924357228-91a4daadcfea?q=80&w=1000&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8ZnJpam9sfGVufDB8fDB8fHww', description:'Frijol negro 1kg', stores:[
-        {name:'Walmart Altabrisa', price:38.0, distance:1.2, offer:'🟡'}, {name:'Soriana Montejo', price:35.5, distance:2.1, offer:'🟢'}, {name:'Chedraui Itzaes', price:36.8, distance:3.5, offer:'🟢'}
-      ]},
-      { id:4, name:'Arroz SOS 1kg', category:'Granos', image:'https://images.unsplash.com/photo-1586201375761-83865001e31c?q=80&w=1000&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8NHx8cmljZXxlbnwwfHwwfHx8MA%3D%3D', description:'Arroz blanco 1kg', stores:[
-        {name:'Walmart Altabrisa', price:28.5, distance:1.2, offer:'🟢'}, {name:'Soriana Montejo', price:26.9, distance:2.1, offer:'🟢'}, {name:'Chedraui Itzaes', price:27.8, distance:3.5, offer:'🟡'}
-      ]},
-      { id:5, name:'Aceite Capullo 1L', category:'Aceites', image:'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSpT7cxWcdH9F-5FMHQ-L6QZs7TZsXEHmYmGA&s', description:'Aceite vegetal 1L', stores:[
-        {name:'Walmart Altabrisa', price:45.0, distance:1.2, offer:'🟡'}, {name:'Soriana Montejo', price:42.5, distance:2.1, offer:'🟢'}, {name:'Chedraui Itzaes', price:43.8, distance:3.5, offer:'🟢'}
-      ]},
-      { id:6, name:'Pan Bimbo Grande', category:'Panadería', image:'https://images.unsplash.com/photo-1509440159596-0249088772ff?q=80&w=1000&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8cGFufGVufDB8fDB8fHww', description:'Pan de caja grande', stores:[
-        {name:'Walmart Altabrisa', price:38.5, distance:1.2, offer:'🟡'}, {name:'Soriana Montejo', price:36.9, distance:2.1, offer:'🟢'}, {name:'Chedraui Itzaes', price:37.8, distance:3.5, offer:'🟡'}
-      ]}
+      { 
+        id:1, 
+        name:'Leche Alpura 1L', 
+        category:'Lácteos', 
+        image:'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KICA8cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjZmZmZmZmIi8+CiAgPHRleHQgeD0iNTAlIiB5PSI1MCUiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC1zaXplPSIxOCIgZmlsbD0iIzMzMyIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZHk9Ii4zZW0iPkxFQ0hFPC90ZXh0PgogIDx0ZXh0IHg9IjUwJSIgeT0iNjAlIiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iMTQiIGZpbGw9IiM2NjYiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGR5PSIuM2VtIj5BbHB1cmEgMUw8L3RleHQ+Cjwvc3ZnPg==',
+        description:'Leche entera pasteurizada 1L', 
+        stores:[
+          {name:'Walmart Altabrisa', price:23.5, distance:1.2, offer:'🟢'}, 
+          {name:'Soriana Montejo', price:24.3, distance:2.1, offer:'🟢'}, 
+          {name:'Chedraui Itzaes', price:22.9, distance:3.5, offer:'🟡'}
+        ]
+      },
+      { 
+        id:2, 
+        name:'Huevo Blanco 30pz', 
+        category:'Abarrotes', 
+        image:'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KICA8cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjZmZmZmZmIi8+CiAgPHRleHQgeD0iNTAlIiB5PSI1MCUiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC1zaXplPSIxOCIgZmlsbD0iIzMzMyIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZHk9Ii4zZW0iPkhVRVZPPC90ZXh0PgogIDx0ZXh0IHg9IjUwJSIgeT0iNjAlIiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iMTQiIGZpbGw9IiM2NjYiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGR5PSIuM2VtIj4zMHB6PC90ZXh0Pgo8L3N2Zz4=',
+        description:'Paquete de 30 huevos blancos', 
+        stores:[
+          {name:'Walmart Altabrisa', price:68.5, distance:1.2, offer:'🟢'}, 
+          {name:'Soriana Montejo', price:65.9, distance:2.1, offer:'🟡'}, 
+          {name:'Chedraui Itzaes', price:70.2, distance:3.5, offer:'🟢'}
+        ]
+      },
+      { 
+        id:3, 
+        name:'Frijol Negro 1kg', 
+        category:'Legumbres', 
+        image:'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KICA8cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjZmZmZmZmIi8+CiAgPHRleHQgeD0iNTAlIiB5PSI1MCUiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC1zaXplPSIxOCIgZmlsbD0iIzMzMyIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZHk9Ii4zZW0iPkZSSUpPTDwvdGV4dD4KICA8dGV4dCB4PSI1MCUiIHk9IjYwJSIgZm9udC1mYW1pbHk9IkFyaWFsIiBmb250LXNpemU9IjE0IiBmaWxsPSIjNjY2IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBkeT0iLjNlbSI+TmVncm8gMWtnPC90ZXh0Pgo8L3N2Zz4=',
+        description:'Frijol negro 1kg', 
+        stores:[
+          {name:'Walmart Altabrisa', price:38.0, distance:1.2, offer:'🟡'}, 
+          {name:'Soriana Montejo', price:35.5, distance:2.1, offer:'🟢'}, 
+          {name:'Chedraui Itzaes', price:36.8, distance:3.5, offer:'🟢'}
+        ]
+      },
+      { 
+        id:4, 
+        name:'Arroz SOS 1kg', 
+        category:'Granos', 
+        image:'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KICA8cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjZmZmZmZmIi8+CiAgPHRleHQgeD0iNTAlIiB5PSI1MCUiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC1zaXplPSIxOCIgZmlsbD0iIzMzMyIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZHk9Ii4zZW0iPkFSUk9aPC90ZXh0PgogIDx0ZXh0IHg9IjUwJSIgeT0iNjAlIiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iMTQiIGZpbGw9IiM2NjYiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGR5PSIuM2VtIj5TT1MgMWtnPC90ZXh0Pgo8L3N2Zz4=',
+        description:'Arroz blanco 1kg', 
+        stores:[
+          {name:'Walmart Altabrisa', price:28.5, distance:1.2, offer:'🟢'}, 
+          {name:'Soriana Montejo', price:26.9, distance:2.1, offer:'🟢'}, 
+          {name:'Chedraui Itzaes', price:27.8, distance:3.5, offer:'🟡'}
+        ]
+      },
+      { 
+        id:5, 
+        name:'Aceite Capullo 1L', 
+        category:'Aceites', 
+        image:'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KICA8cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjZmZmZmZmIi8+CiAgPHRleHQgeD0iNTAlIiB5PSI1MCUiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC1zaXplPSIxOCIgZmlsbD0iIzMzMyIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZHk9Ii4zZW0iPkFDRUlURTwvdGV4dD4KICA8dGV4dCB4PSI1MCUiIHk9IjYwJSIgZm9udC1mYW1pbHk9IkFyaWFsIiBmb250LXNpemU9IjE0IiBmaWxsPSIjNjY2IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBkeT0iLjNlbSI+Q2FwdWxsbyAxTDwvdGV4dD4KPC9zdmc+',
+        description:'Aceite vegetal 1L', 
+        stores:[
+          {name:'Walmart Altabrisa', price:45.0, distance:1.2, offer:'🟡'}, 
+          {name:'Soriana Montejo', price:42.5, distance:2.1, offer:'🟢'}, 
+          {name:'Chedraui Itzaes', price:43.8, distance:3.5, offer:'🟢'}
+        ]
+      },
+      { 
+        id:6, 
+        name:'Pan Bimbo Grande', 
+        category:'Panadería', 
+        image:'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KICA8cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjZmZmZmZmIi8+CiAgPHRleHQgeD0iNTAlIiB5PSI1MCUiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC1zaXplPSIxOCIgZmlsbD0iIzMzMyIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZHk9Ii4zZW0iPlBBTjwvdGV4dD4KICA8dGV4dCB4PSI1MCUiIHk9IjYwJSIgZm9udC1mYW1pbHk9IkFyaWFsIiBmb250LXNpemU9IjE0IiBmaWxsPSIjNjY2IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBkeT0iLjNlbSI+QmltYm8gR3JhbmRlPC90ZXh0Pgo8L3N2Zz4=',
+        description:'Pan de caja grande', 
+        stores:[
+          {name:'Walmart Altabrisa', price:38.5, distance:1.2, offer:'🟡'}, 
+          {name:'Soriana Montejo', price:36.9, distance:2.1, offer:'🟢'}, 
+          {name:'Chedraui Itzaes', price:37.8, distance:3.5, offer:'🟡'}
+        ]
+      }
     ];
 
     const STORES = [
@@ -761,6 +850,7 @@
       if(sectionId === 'compare') populateCompareSelects();
       if(sectionId === 'cart') renderCart();
       if(sectionId === 'profile') renderProfile();
+      if(sectionId === 'chat') updateChatWelcome();
     }
 
     function goHome(){ navigate('home'); }
@@ -777,7 +867,7 @@
         const div = document.createElement('div');
         div.className = 'product-card';
         div.innerHTML = `
-          <img class="product-image" src="${p.image}" alt="${escapeHtml(p.name)}">
+          <img class="product-image" src="${p.image}" alt="${escapeHtml(p.name)}" onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjZjVmNWY1Ii8+PHRleHQgeD0iNTAlIiB5PSI1MCUiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC1zaXplPSIxNCIgZmlsbD0iIzk5OSIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZHk9Ii4zZW0iPk5vIGRpc3BvbmlibGU8L3RleHQ+PC9zdmc+'; this.onerror=null;">
           <div class="product-info">
             <div>
               <div class="product-title">${escapeHtml(p.name)}</div>
@@ -833,7 +923,7 @@
         el.style.display = 'flex';
         el.style.alignItems = 'center';
         el.innerHTML = `
-          <img src="${p.image}" style="width:180px; height:120px; object-fit:cover; border-radius:10px; margin-right:16px;">
+          <img src="${p.image}" style="width:180px; height:120px; object-fit:cover; border-radius:10px; margin-right:16px;" onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjZjVmNWY1Ii8+PHRleHQgeD0iNTAlIiB5PSI1MCUiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC1zaXplPSIxNCIgZmlsbD0iIzk5OSIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZHk9Ii4zZW0iPk5vIGRpc3BvbmlibGU8L3RleHQ+PC9zdmc+'; this.onerror=null;">
           <div style="flex:1; padding:16px 10px;">
             <div style="font-weight:800">${escapeHtml(p.name)}</div>
             <div class="muted small">${escapeHtml(p.category)}</div>
@@ -876,7 +966,11 @@
       const p = PRODUCTS.find(x => x.id === id);
       if(!p) return;
       currentOpenProduct = id;
-      document.getElementById('detailImage').src = p.image;
+      
+      // Actualizar imagen con manejo de error
+      const detailImage = document.getElementById('detailImage');
+      detailImage.innerHTML = `<img src="${p.image}" alt="${escapeHtml(p.name)}" style="width:100%; height:100%; object-fit:cover;" onerror="this.style.display='none'; detailImage.innerHTML='<div style=\\'width:100%; height:100%; display:flex; align-items:center; justify-content:center; background:#f5f5f5; color:#999; font-weight:bold;\\'>${escapeHtml(p.name)}</div>'; this.onerror=null;">`;
+      
       document.getElementById('detailTitle').textContent = p.name;
       document.getElementById('detailCategory').textContent = p.category;
       document.getElementById('detailPrice').textContent = '$' + p.stores[0].price.toFixed(2);
@@ -916,6 +1010,10 @@
         `;
         div.appendChild(r);
       });
+      
+      // Generar gráfica de historial de precios
+      generatePriceHistoryGraph(p.id);
+      
       navigate('product');
     }
     
@@ -956,7 +1054,7 @@
         const el = document.createElement('div');
         el.className = 'cart-item';
         el.innerHTML = `
-          <img src="${p.image}" style="width:100px; height:75px; object-fit:cover; border-radius:12px;">
+          <img src="${p.image}" style="width:100px; height:75px; object-fit:cover; border-radius:12px;" onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjZjVmNWY1Ii8+PHRleHQgeD0iNTAlIiB5PSI1MCUiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC1zaXplPSIxNCIgZmlsbD0iIzk5OSIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZHk9Ii4zZW0iPk5vIGRpc3BvbmlibGU8L3RleHQ+PC9zdmc+'; this.onerror=null;">
           <div style="flex:1">
             <div style="font-weight:800">${escapeHtml(p.name)}</div>
             <div class="small muted">${escapeHtml(p.stores[0].name)}</div>
@@ -1043,7 +1141,7 @@
       const html = `
         <div class="card">
           <div style="display:flex; gap:16px; align-items:center; margin-bottom:16px;">
-            <img src="${product.image}" style="width:120px; height:90px; object-fit:cover; border-radius:10px;">
+            <img src="${product.image}" style="width:120px; height:90px; object-fit:cover; border-radius:10px;" onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjZjVmNWY1Ii8+PHRleHQgeD0iNTAlIiB5PSI1MCUiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC1zaXplPSIxNCIgZmlsbD0iIzk5OSIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZHk9Ii4zZW0iPk5vIGRpc3BvbmlibGU8L3RleHQ+PC9zdmc+'; this.onerror=null;">
             <div>
               <div style="font-weight:800; font-size:1.2rem">${escapeHtml(product.name)}</div>
               <div class="muted small">${escapeHtml(product.category)}</div>
@@ -1140,6 +1238,8 @@
       persist();
       renderProfile();
       toast('Perfil actualizado');
+      // Actualizar el mensaje de bienvenida en el chat
+      updateChatWelcome();
     }
 
     function renderFollowed(){
@@ -1153,7 +1253,7 @@
         el.style.minWidth = '200px';
         el.innerHTML = `
           <div style="display:flex; gap:10px; align-items:center; padding:10px; border-radius:10px; background: white; box-shadow: var(--shadow);">
-            <img src="${p.image}" style="width:64px; height:50px; object-fit:cover; border-radius:8px;">
+            <img src="${p.image}" style="width:64px; height:50px; object-fit:cover; border-radius:8px;" onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjZjVmNWY1Ii8+PHRleHQgeD0iNTAlIiB5PSI1MCUiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC1zaXplPSIxNCIgZmlsbD0iIzk5OSIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZHk9Ii4zZW0iPk5vIGRpc3BvbmlibGU8L3RleHQ+PC9zdmc+'; this.onerror=null;">
             <div style="flex:1;">
               <div style="font-weight:700">${escapeHtml(p.name)}</div>
               <div class="small muted">$${p.stores[0].price.toFixed(2)}</div>
@@ -1184,6 +1284,15 @@
     /* --------------------------
        Chat (simulado)
        -------------------------- */
+    function updateChatWelcome() {
+      const welcomeMessage = document.getElementById('welcomeMessage');
+      const userName = state.user ? state.user.name : 'Invitado';
+      welcomeMessage.innerHTML = `
+        <img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCA0OCA0OCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3Qgd2lkdGg9IjQ4IiBoZWlnaHQ9IjQ4IiByeD0iMTIiIGZpbGw9InVybCgjcGFpbnQwX2xpbmVhcikiLz4KPHBhdGggZD0iTTE4IDE4SDE2VjM0SDE4VjE4WiIgZmlsbD0id2hpdGUiLz4KPHBhdGggZD0iTTI0IDE4SDIyVjM0SDI0VjE4WiIgZmlsbD0id2hpdGUiLz4KPHBhdGggZD0iTTMwIDE4SDI4VjM0SDMwVjE4WiIgZmlsbD0id2hpdGUiLz4KPHBhdGggZD0iTTM2IDE4SDM0VjM0SDM2VjE4WiIgZmlsbD0id2hpdGUiLz4KPHBhdGggZD0iTTEyIDI2SDEwVjI4SDEyVjI2WiIgZmlsbD0id2hpdGUiLz4KPHBhdGggZD0iTTM4IDI2SDM2VjI4SDM4VjI2WiIgZmlsbD0id2hpdGUiLz4KPGRlZnM+CjxsaW5lYXJHcmFkaWVudCBpZD0icGFpbnQwX2xpbmVhciIgeDE9IjI0IiB5MT0iMCIgeDI9IjI0IiB5Mj0iNDgiIGdyYWRpZW50VW5pdHM9InVzZXJTcGFjZU9uVXNlIj4KPHN0b3Agc3RvcC1jb2xvcj0iIzFlODhlNSIvPgo8c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiM1ZTM1YjEiLz4KPC9saW5lYXJHcmFkaWVudD4KPC9kZWZzPgo8L3N2Zz4K" alt="SmartPrice" class="chat-logo">
+        <strong>SmartPrice:</strong> ¡Hola ${userName}! Soy tu asistente de compras. ¿En qué puedo ayudarte hoy?
+      `;
+    }
+    
     function setChatExample(t){ document.getElementById('chatInput').value = t; }
     function sendChat(){
       const v = document.getElementById('chatInput').value.trim();
@@ -1208,7 +1317,11 @@
       const w = document.getElementById('chatWindow');
       const b = document.createElement('div');
       b.className = 'bubble ' + (who === 'user' ? 'user' : 'bot');
-      b.innerHTML = `<strong>${who === 'user' ? 'Tú' : 'SmartPrice'}:</strong> ${escapeHtml(text)}`;
+      if(who === 'bot') {
+        b.innerHTML = `<img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCA0OCA0OCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3Qgd2lkdGg9IjQ4IiBoZWlnaHQ9IjQ4IiByeD0iMTIiIGZpbGw9InVybCgjcGFpbnQwX2xpbmVhcikiLz4KPHBhdGggZD0iTTE4IDE4SDE2VjM0SDE4VjE4WiIgZmlsbD0id2hpdGUiLz4KPHBhdGggZD0iTTI0IDE4SDIyVjM0SDI0VjE4WiIgZmlsbD0id2hpdGUiLz4KPHBhdGggZD0iTTMwIDE4SDI4VjM0SDMwVjE4WiIgZmlsbD0id2hpdGUiLz4KPHBhdGggZD0iTTM2IDE4SDM0VjM0SDM2VjE4WiIgZmlsbD0id2hpdGUiLz4KPHBhdGggZD0iTTEyIDI2SDEwVjI4SDEyVjI2WiIgZmlsbD0id2hpdGUiLz4KPHBhdGggZD0iTTM4IDI2SDM2VjI4SDM4VjI2WiIgZmlsbD0id2hpdGUiLz4KPGRlZnM+CjxsaW5lYXJHcmFkaWVudCBpZD0icGFpbnQwX2xpbmVhciIgeDE9IjI0IiB5MT0iMCIgeDI9IjI0IiB5Mj0iNDgiIGdyYWRpZW50VW5pdHM9InVzZXJTcGFjZU9uVXNlIj4KPHN0b3Agc3RvcC1jb2xvcj0iIzFlODhlNSIvPgo8c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiM1ZTM1YjEiLz4KPC9saW5lYXJHcmFkaWVudD4KPC9kZWZzPgo8L3N2Zz4K" alt="SmartPrice" class="chat-logo"> <strong>SmartPrice:</strong> ${escapeHtml(text)}`;
+      } else {
+        b.innerHTML = `<strong>Tú:</strong> ${escapeHtml(text)}`;
+      }
       w.appendChild(b);
       w.scrollTop = w.scrollHeight;
     }
@@ -1227,6 +1340,7 @@
       msg.textContent = '';
       toast('Sesión iniciada');
       renderProfile();
+      updateChatWelcome();
       navigate('home');
     }
 
@@ -1234,6 +1348,8 @@
       state.user = { name: 'Invitado', email: 'invitado@demo' };
       persist();
       toast('Entraste como invitado');
+      renderProfile();
+      updateChatWelcome();
       navigate('home');
     }
 
@@ -1243,6 +1359,96 @@
       toast('Sesión cerrada');
       navigate('splash');
       renderProfile();
+      updateChatWelcome();
+    }
+
+    /* --------------------------
+       Gráficas de historial de precios
+       -------------------------- */
+    function generatePriceHistoryGraph(productId) {
+      const graphContainer = document.getElementById('priceHistoryGraph');
+      graphContainer.innerHTML = '';
+      
+      // Datos simulados para el historial de precios
+      const priceHistory = [
+        { month: 'Ene', price: 25.50 },
+        { month: 'Feb', price: 24.80 },
+        { month: 'Mar', price: 24.20 },
+        { month: 'Abr', price: 23.90 },
+        { month: 'May', price: 23.50 },
+        { month: 'Jun', price: 23.50 }
+      ];
+      
+      // Encontrar valores mínimos y máximos para escalar la gráfica
+      const prices = priceHistory.map(p => p.price);
+      const minPrice = Math.min(...prices);
+      const maxPrice = Math.max(...prices);
+      const priceRange = maxPrice - minPrice;
+      
+      // Dimensiones del gráfico
+      const width = graphContainer.offsetWidth;
+      const height = graphContainer.offsetHeight;
+      const padding = 20;
+      
+      // Crear elemento SVG
+      const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+      svg.setAttribute('width', '100%');
+      svg.setAttribute('height', '100%');
+      svg.setAttribute('viewBox', `0 0 ${width} ${height}`);
+      
+      // Crear línea de la gráfica
+      let pathData = '';
+      priceHistory.forEach((point, index) => {
+        const x = padding + (index * (width - 2 * padding) / (priceHistory.length - 1));
+        const y = height - padding - ((point.price - minPrice) / priceRange * (height - 2 * padding));
+        
+        if (index === 0) {
+          pathData += `M ${x} ${y} `;
+        } else {
+          pathData += `L ${x} ${y} `;
+        }
+      });
+      
+      // Crear área bajo la curva
+      let areaData = pathData;
+      areaData += `L ${width - padding} ${height - padding} L ${padding} ${height - padding} Z`;
+      
+      // Añadir área
+      const area = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+      area.setAttribute('d', areaData);
+      area.setAttribute('class', 'graph-area');
+      svg.appendChild(area);
+      
+      // Añadir línea
+      const line = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+      line.setAttribute('d', pathData);
+      line.setAttribute('class', 'graph-line');
+      svg.appendChild(line);
+      
+      // Añadir puntos
+      priceHistory.forEach((point, index) => {
+        const x = padding + (index * (width - 2 * padding) / (priceHistory.length - 1));
+        const y = height - padding - ((point.price - minPrice) / priceRange * (height - 2 * padding));
+        
+        const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+        circle.setAttribute('cx', x);
+        circle.setAttribute('cy', y);
+        circle.setAttribute('r', 4);
+        circle.setAttribute('class', 'graph-point');
+        svg.appendChild(circle);
+        
+        // Añadir etiquetas de mes
+        const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+        text.setAttribute('x', x);
+        text.setAttribute('y', height - 5);
+        text.setAttribute('text-anchor', 'middle');
+        text.setAttribute('font-size', '10');
+        text.setAttribute('fill', '#546e7a');
+        text.textContent = point.month;
+        svg.appendChild(text);
+      });
+      
+      graphContainer.appendChild(svg);
     }
 
     /* --------------------------
@@ -1281,6 +1487,7 @@
       renderStores();
       renderProfile();
       renderCartBadge();
+      updateChatWelcome();
       // keep initial nav highlighting
       document.querySelectorAll('.navlinks button')[0].classList.add('active');
     }
