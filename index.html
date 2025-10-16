@@ -222,4 +222,803 @@
         <div style="display:flex; gap:24px; align-items:center; flex-wrap:wrap;">
           <div style="flex:1; min-width:280px;">
             <h2 style="margin:0 0 10px 0">Iniciar sesión</h2>
-            <p class="muted small">Usa
+            <p class="muted small">Usa cualquier correo para simular el inicio de sesión (se guarda en localStorage).</p>
+
+            <div style="margin-top:16px;">
+              <label class="small muted">Correo</label><br>
+              <input id="inputEmail" type="email" placeholder="tu@correo.com" style="width:100%; padding:14px; border-radius:12px; border:1px solid rgba(0,0,0,0.08); background:white; color:var(--text); margin-top:8px; box-shadow: 0 4px 12px rgba(0,0,0,0.05);">
+            </div>
+            <div style="margin-top:16px;">
+              <label class="small muted">Contraseña</label><br>
+              <input id="inputPass" type="password" placeholder="••••••" style="width:100%; padding:14px; border-radius:12px; border:1px solid rgba(0,0,0,0.08); background:white; color:var(--text); margin-top:8px; box-shadow: 0 4px 12px rgba(0,0,0,0.05);">
+            </div>
+
+            <div style="display:flex; gap:10px; margin-top:18px;">
+              <button class="btn-primary" onclick="login()">Entrar</button>
+              <button class="btn-ghost" onclick="loginAsGuest()">Entrar como invitado</button>
+            </div>
+            <div id="loginMsg" class="small muted mt-12" style="margin-top:12px;"></div>
+          </div>
+
+          <div style="width:360px;">
+            <div style="background:white; padding:16px; border-radius:12px; box-shadow: var(--shadow);">
+              <h4 style="margin:0 0 8px 0">Beneficios</h4>
+              <ul class="muted small" style="margin:10px 0 0 20px;">
+                <li>Historial de precios</li>
+                <li>Alertas personalizadas</li>
+                <li>Guardar listas y favoritos</li>
+              </ul>
+            </div>
+            <div style="margin-top:16px; font-size:0.85rem;" class="muted">Nota: Este inicio es simulado para la demostración; los datos se guardan localmente en tu navegador.</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- HOME / PRODUCTOS -->
+    <section id="home" class="app-section">
+      <div style="display:flex; justify-content:space-between; align-items:center;">
+        <div>
+          <h2 style="margin:0">Productos destacados</h2>
+          <div class="small muted">Encuentra los mejores precios y ofertas locales</div>
+        </div>
+        <div style="display:flex; gap:10px;">
+          <input id="filterInput" class="search-input" placeholder="Filtrar por nombre o categoría" onkeydown="if(event.key==='Enter') filterProducts()">
+          <button class="btn-ghost" onclick="filterProducts()">Filtrar</button>
+          <button class="btn-primary" onclick="navigate('compare')">Ir a comparar</button>
+        </div>
+      </div>
+
+      <div id="productsGrid" class="product-grid mt-12">
+        <!-- productos generados por JS -->
+      </div>
+    </section>
+
+    <!-- SEARCH (vista más completa) -->
+    <section id="search" class="app-section">
+      <div style="display:flex; justify-content:space-between; align-items:center;">
+        <div>
+          <h2 style="margin:0">Buscar productos</h2>
+          <div class="small muted">Filtrado avanzado y resultados instantáneos</div>
+        </div>
+        <div style="display:flex; gap:10px;">
+          <select id="catFilter" style="padding:12px; border-radius:12px; background:white; border:1px solid rgba(0,0,0,0.08); color:var(--text); box-shadow: 0 4px 12px rgba(0,0,0,0.05);">
+            <option value="">Todas las categorías</option>
+          </select>
+          <input id="searchBox" class="search-input" placeholder="Buscar..." onkeydown="if(event.key==='Enter') doSearch()">
+          <button class="btn-primary" onclick="doSearch()">Buscar</button>
+        </div>
+      </div>
+
+      <div id="searchResults" class="mt-12">
+        <!-- resultados -->
+      </div>
+    </section>
+
+    <!-- COMPARE -->
+    <section id="compare" class="app-section">
+      <div style="display:flex; justify-content:space-between; align-items:center;">
+        <div>
+          <h2 style="margin:0">Comparar productos</h2>
+          <div class="small muted">Selecciona hasta dos productos para comparar</div>
+        </div>
+        <div style="display:flex; gap:10px; align-items:center;">
+          <select id="compareA" style="padding:12px; border-radius:12px; background:white; border:1px solid rgba(0,0,0,0.08); color:var(--text); box-shadow: 0 4px 12px rgba(0,0,0,0.05);"></select>
+          <select id="compareB" style="padding:12px; border-radius:12px; background:white; border:1px solid rgba(0,0,0,0.08); color:var(--text); box-shadow: 0 4px 12px rgba(0,0,0,0.05);"></select>
+          <button class="btn-primary" onclick="doCompare()">Comparar</button>
+        </div>
+      </div>
+
+      <div id="compareResult" class="mt-12">
+        <!-- resultado de comparación -->
+      </div>
+    </section>
+
+    <!-- PRODUCT DETAIL -->
+    <section id="product" class="app-section">
+      <div style="display:flex; gap:24px; flex-wrap:wrap;">
+        <div style="flex: 1 1 340px;">
+          <div class="card" id="productCard">
+            <img id="detailImage" src="" alt="producto" style="width:100%; height:280px; object-fit:cover; border-radius:12px; margin-bottom:16px;">
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+              <div>
+                <div id="detailTitle" style="font-weight:800; font-size:1.25rem"></div>
+                <div class="small muted" id="detailCategory"></div>
+              </div>
+              <div style="text-align:right">
+                <div class="price" id="detailPrice"></div>
+                <div class="small muted" id="detailStore"></div>
+              </div>
+            </div>
+
+            <p class="muted small mt-12" id="detailDesc"></p>
+
+            <div style="display:flex; gap:10px; margin-top:16px;">
+              <button class="btn-primary" id="btnAddDetail" onclick="">Añadir al carrito</button>
+              <button class="btn-ghost" onclick="followProduct(currentOpenProduct)">Seguir producto</button>
+            </div>
+          </div>
+        </div>
+
+        <div style="flex: 1 1 440px;">
+          <div class="card">
+            <h4 style="margin:0 0 8px 0">Precios en tiendas</h4>
+            <div id="storesCompare" style="margin-top:10px;">
+              <!-- lista tiendas -->
+            </div>
+
+            <div style="margin-top:12px;">
+              <h5 style="margin:10px 0 8px 0">Historial (simulado)</h5>
+              <div style="height:140px; border-radius:12px; background:white; display:flex; align-items:center; justify-content:center; box-shadow: var(--shadow);">
+                <div class="small muted">Gráfica simulada — integrar Chart.js si se requiere</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- CART -->
+    <section id="cart" class="app-section">
+      <h2>Carrito</h2>
+      <div style="display:flex; gap:24px; flex-wrap:wrap;">
+        <div style="flex:1 1 640px;">
+          <div id="cartItems" class="card">
+            <!-- items -->
+          </div>
+        </div>
+
+        <div style="width:340px;">
+          <div class="card">
+            <h4 style="margin:0 0 8px 0">Resumen de compra</h4>
+            <div style="display:flex; justify-content:space-between; margin-top:16px;"><div class="muted">Subtotal</div><div id="cartSubtotal" style="font-weight:800;">$0.00</div></div>
+            <div style="display:flex; justify-content:space-between; margin-top:10px;"><div class="muted">Ahorro estimado</div><div id="cartSaving" class="muted">$0.00</div></div>
+            <hr style="border-color:rgba(0,0,0,0.05)">
+            <div style="display:flex; justify-content:space-between;"><div style="font-weight:800">Total</div><div id="cartTotal" style="font-weight:900; color:var(--accent-2);">$0.00</div></div>
+            <div style="margin-top:16px;">
+              <button class="btn-primary" onclick="checkout()">Generar plan de compra</button>
+              <button class="btn-ghost" style="margin-top:10px;" onclick="saveList()">Guardar lista</button>
+            </div>
+            <div style="margin-top:16px;" class="small muted">Mejor opción: <span id="bestShop">—</span></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- MAP -->
+    <section id="map" class="app-section">
+      <h2>Mapa de tiendas</h2>
+      <div class="card">
+        <div style="display:flex; gap:16px; flex-wrap:wrap;">
+          <div style="flex:1 1 580px; min-height:380px; border-radius:16px; overflow:hidden; background:white; display:flex; align-items:center; justify-content:center; box-shadow: var(--shadow);">
+            <div style="text-align:center">
+              <div style="font-size:3rem">🗺️</div>
+              <div class="small muted">Mapa simulado — integra Google Maps o Leaflet en producción</div>
+              <div style="margin-top:16px; display:flex; gap:10px; justify-content:center;">
+                <button class="btn-primary" onclick="focusStore(0)">Walmart Altabrisa</button>
+                <button class="btn-ghost" onclick="focusStore(1)">Soriana Montejo</button>
+                <button class="btn-ghost" onclick="focusStore(2)">Chedraui Itzaes</button>
+              </div>
+            </div>
+          </div>
+
+          <div style="width:320px;">
+            <h4 style="margin-top:0">Lista de tiendas</h4>
+            <div id="storeList" style="display:flex; flex-direction:column; gap:12px; margin-top:10px;">
+              <!-- tiendas -->
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- PROFILE -->
+    <section id="profile" class="app-section">
+      <h2>Mi perfil</h2>
+      <div class="card" style="display:flex; gap:20px; align-items:center; flex-wrap:wrap;">
+        <div class="profile-card">
+          <div class="avatar" id="avatarChar">J</div>
+          <div>
+            <div id="profileName" style="font-weight:800; font-size:1.15rem">Invitado</div>
+            <div class="small muted" id="profileEmail">invitado@demo</div>
+          </div>
+        </div>
+
+        <div style="flex:1; min-width:280px;">
+          <label class="small muted">Nombre</label><br>
+          <input id="profileInputName" style="width:100%; padding:12px; border-radius:10px; margin-top:8px; background:white; border:1px solid rgba(0,0,0,0.08); color:var(--text); box-shadow: 0 4px 12px rgba(0,0,0,0.05);">
+          <label class="small muted" style="margin-top:10px; display:block;">Correo</label><br>
+          <input id="profileInputEmail" style="width:100%; padding:12px; border-radius:10px; margin-top:8px; background:white; border:1px solid rgba(0,0,0,0.08); color:var(--text); box-shadow: 0 4px 12px rgba(0,0,0,0.05);">
+          <div style="display:flex; gap:10px; margin-top:12px;">
+            <button class="btn-primary" onclick="saveProfile()">Guardar</button>
+            <button class="btn-ghost" onclick="logout()">Cerrar sesión</button>
+          </div>
+        </div>
+
+        <div style="width:260px;">
+          <h4 style="margin:0 0 10px 0">Preferencias</h4>
+          <div class="small muted">Notificaciones: <input type="checkbox" id="prefOffers" checked></div>
+          <div class="small muted" style="margin-top:8px;">Alertas de precio: <input type="checkbox" id="prefAlerts" checked></div>
+        </div>
+      </div>
+
+      <div style="margin-top:18px;" id="followedArea">
+        <h3 style="margin:0 0 8px 0">Productos seguidos</h3>
+        <div id="followedList" style="display:flex; gap:10px; flex-wrap:wrap; margin-top:10px;">
+          <!-- seguidos -->
+        </div>
+      </div>
+    </section>
+
+    <!-- CHAT -->
+    <section id="chat" class="app-section">
+      <h2>Asistente SmartPrice</h2>
+      <div style="display:flex; gap:16px; flex-wrap:wrap;">
+        <div style="flex:1 1 680px;">
+          <div class="card">
+            <div id="chatWindow" class="chat-window">
+              <!-- mensajes -->
+            </div>
+            <div style="display:flex; gap:10px; margin-top:12px;">
+              <input id="chatInput" style="flex:1; padding:12px; border-radius:12px; border:1px solid rgba(0,0,0,0.08); background:white; color:var(--text); box-shadow: 0 4px 12px rgba(0,0,0,0.05);" placeholder="Escribe algo...">
+              <button class="btn-primary" onclick="sendChat()">Enviar</button>
+            </div>
+            <div class="small muted" style="margin-top:10px;">Ejemplos: "¿Dónde está más barata la leche?", "Muéstrame ofertas de hoy".</div>
+          </div>
+        </div>
+
+        <div style="width:320px;">
+          <div class="card">
+            <h4 style="margin:0">Preguntas rápidas</h4>
+            <div style="display:flex; flex-direction:column; gap:10px; margin-top:12px;">
+              <button class="btn-ghost" onclick="setChatExample('¿Dónde está más barata la leche?')">¿Dónde está más barata la leche?</button>
+              <button class="btn-ghost" onclick="setChatExample('Necesito comprar huevo')">Necesito comprar huevo</button>
+              <button class="btn-ghost" onclick="setChatExample('Muéstrame ofertas de hoy')">Muéstrame ofertas</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </div>
+
+  <footer>
+    © 2025 SmartPrice — Mockup interactivo • Diseñado por Jhoana
+  </footer>
+
+  <!-- SCRIPT: Lógica del mockup -->
+  <script>
+    /* --------------------------
+       Datos de ejemplo
+       -------------------------- */
+    const PRODUCTS = [
+      { id:1, name:'Leche Alpura 1L', category:'Lácteos', image:'https://images.unsplash.com/photo-1563636619-e9143da7973b?q=80&w=1000&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8bGVjaGV8ZW58MHx8MHx8fDA%3D', description:'Leche entera pasteurizada 1L', stores:[
+        {name:'Walmart Altabrisa', price:23.5, distance:1.2, offer:'🟢'}, {name:'Soriana Montejo', price:24.3, distance:2.1, offer:'🟢'}, {name:'Chedraui Itzaes', price:22.9, distance:3.5, offer:'🟡'}
+      ]},
+      { id:2, name:'Huevo Blanco 30pz', category:'Abarrotes', image:'https://images.unsplash.com/photo-1582722872445-44dc5f7e3c8f?q=80&w=1000&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8aHVldm9zfGVufDB8fDB8fHww', description:'Paquete de 30 huevos blancos', stores:[
+        {name:'Walmart Altabrisa', price:68.5, distance:1.2, offer:'🟢'}, {name:'Soriana Montejo', price:65.9, distance:2.1, offer:'🟡'}, {name:'Chedraui Itzaes', price:70.2, distance:3.5, offer:'🟢'}
+      ]},
+      { id:3, name:'Frijol Negro 1kg', category:'Legumbres', image:'https://images.unsplash.com/photo-1592924357228-91a4daadcfea?q=80&w=1000&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8ZnJpam9sfGVufDB8fDB8fHww', description:'Frijol negro 1kg', stores:[
+        {name:'Walmart Altabrisa', price:38.0, distance:1.2, offer:'🟡'}, {name:'Soriana Montejo', price:35.5, distance:2.1, offer:'🟢'}, {name:'Chedraui Itzaes', price:36.8, distance:3.5, offer:'🟢'}
+      ]},
+      { id:4, name:'Arroz SOS 1kg', category:'Granos', image:'https://images.unsplash.com/photo-1594122230683-6cac31b9c7e5?q=80&w=1000&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8YXJyb3p8ZW58MHx8MHx8fDA%3D', description:'Arroz blanco 1kg', stores:[
+        {name:'Walmart Altabrisa', price:28.5, distance:1.2, offer:'🟢'}, {name:'Soriana Montejo', price:26.9, distance:2.1, offer:'🟢'}, {name:'Chedraui Itzaes', price:27.8, distance:3.5, offer:'🟡'}
+      ]},
+      { id:5, name:'Aceite Capullo 1L', category:'Aceites', image:'https://images.unsplash.com/photo-1633933356066-698a117d5c56?q=80&w=1000&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8YWNlaXRlfGVufDB8fDB8fHww', description:'Aceite vegetal 1L', stores:[
+        {name:'Walmart Altabrisa', price:45.0, distance:1.2, offer:'🟡'}, {name:'Soriana Montejo', price:42.5, distance:2.1, offer:'🟢'}, {name:'Chedraui Itzaes', price:43.8, distance:3.5, offer:'🟢'}
+      ]},
+      { id:6, name:'Pan Bimbo Grande', category:'Panadería', image:'https://images.unsplash.com/photo-1509440159596-0249088772ff?q=80&w=1000&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8cGFufGVufDB8fDB8fHww', description:'Pan de caja grande', stores:[
+        {name:'Walmart Altabrisa', price:38.5, distance:1.2, offer:'🟡'}, {name:'Soriana Montejo', price:36.9, distance:2.1, offer:'🟢'}, {name:'Chedraui Itzaes', price:37.8, distance:3.5, offer:'🟡'}
+      ]}
+    ];
+
+    const STORES = [
+      { name:'Walmart Altabrisa', lat:20.983113, lng:-89.624222, avg:'$$' },
+      { name:'Soriana Montejo', lat:20.987654, lng:-89.618765, avg:'$$' },
+      { name:'Chedraui Itzaes', lat:20.976543, lng:-89.632109, avg:'$' }
+    ];
+
+    /* --------------------------
+       Estado (localStorage)
+       -------------------------- */
+    const state = {
+      cart: JSON.parse(localStorage.getItem('sp_cart') || '[]'),
+      followed: JSON.parse(localStorage.getItem('sp_followed') || '[]'),
+      user: JSON.parse(localStorage.getItem('sp_user') || 'null'),
+      currentOpenProduct: null
+    };
+
+    function persist(){
+      localStorage.setItem('sp_cart', JSON.stringify(state.cart));
+      localStorage.setItem('sp_followed', JSON.stringify(state.followed));
+      localStorage.setItem('sp_user', JSON.stringify(state.user));
+      renderCartBadge();
+    }
+
+    /* --------------------------
+       Navegación SPA
+       -------------------------- */
+    function navigate(sectionId){
+      document.querySelectorAll('section.app-section').forEach(s => s.classList.remove('active'));
+      const s = document.getElementById(sectionId);
+      if(s) s.classList.add('active');
+      // nav active
+      document.querySelectorAll('.navlinks button').forEach(b => b.classList.remove('active'));
+      const navs = Array.from(document.querySelectorAll('.navlinks button')).find(b => b.textContent.trim().startsWith(capitalize(sectionId)));
+      if(navs) navs.classList.add('active');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      // extra actions
+      if(sectionId === 'home') renderProducts();
+      if(sectionId === 'search') populateCategoryFilter();
+      if(sectionId === 'compare') populateCompareSelects();
+      if(sectionId === 'cart') renderCart();
+      if(sectionId === 'profile') renderProfile();
+    }
+
+    function goHome(){ navigate('home'); }
+
+    function capitalize(s){ if(!s) return s; return s.charAt(0).toUpperCase()+s.slice(1); }
+
+    /* --------------------------
+       Render productos (home)
+       -------------------------- */
+    function renderProducts(list = PRODUCTS){
+      const grid = document.getElementById('productsGrid');
+      grid.innerHTML = '';
+      list.forEach(p => {
+        const div = document.createElement('div');
+        div.className = 'product-card';
+        div.innerHTML = `
+          <img class="product-image" src="${p.image}" alt="${escapeHtml(p.name)}">
+          <div class="product-info">
+            <div>
+              <div class="product-title">${escapeHtml(p.name)}</div>
+              <div class="product-cat">${escapeHtml(p.category)}</div>
+            </div>
+            <div class="product-row">
+              <div>
+                <div class="price">$${p.stores[0].price.toFixed(2)}</div>
+                <div class="store">${escapeHtml(p.stores[0].name)}</div>
+              </div>
+              <div style="display:flex; flex-direction:column; gap:10px;">
+                <button class="btn-primary" onclick="openProduct(${p.id})">Ver</button>
+                <button class="btn-ghost" onclick="addToCart(${p.id})">Añadir</button>
+              </div>
+            </div>
+          </div>
+        `;
+        grid.appendChild(div);
+      });
+    }
+
+    /* --------------------------
+       Filtrado y búsqueda
+       -------------------------- */
+    function filterProducts(){
+      const q = (document.getElementById('filterInput').value || '').trim().toLowerCase();
+      const res = PRODUCTS.filter(p => p.name.toLowerCase().includes(q) || p.category.toLowerCase().includes(q));
+      renderProducts(res);
+      if(res.length === 0){
+        document.getElementById('productsGrid').innerHTML = `<div class="card" style="padding:20px; text-align:center;">No se encontraron productos para "<strong>${escapeHtml(q)}</strong>".</div>`;
+      }
+    }
+
+    function doSearch(){
+      const q = (document.getElementById('searchBox').value || '').trim().toLowerCase();
+      const cat = (document.getElementById('catFilter').value || '').trim().toLowerCase();
+      const results = PRODUCTS.filter(p => {
+        const matchQ = q === '' || p.name.toLowerCase().includes(q) || p.description.toLowerCase().includes(q);
+        const matchCat = cat === '' || p.category.toLowerCase() === cat;
+        return matchQ && matchCat;
+      });
+      const container = document.getElementById('searchResults');
+      container.innerHTML = '';
+      if(results.length === 0){
+        container.innerHTML = `<div class="card" style="text-align:center;">No hay resultados para "<strong>${escapeHtml(q)}</strong>".</div>`;
+        return;
+      }
+      results.forEach(p => {
+        const el = document.createElement('div');
+        el.className = 'product-card';
+        el.style.display = 'flex';
+        el.style.alignItems = 'center';
+        el.innerHTML = `
+          <img src="${p.image}" style="width:180px; height:120px; object-fit:cover; border-radius:10px; margin-right:16px;">
+          <div style="flex:1; padding:16px 10px;">
+            <div style="font-weight:800">${escapeHtml(p.name)}</div>
+            <div class="muted small">${escapeHtml(p.category)}</div>
+            <div style="margin-top:10px;">
+              <button class="btn-primary" onclick="openProduct(${p.id})">Ver</button>
+              <button class="btn-ghost" onclick="addToCart(${p.id})">Añadir</button>
+            </div>
+          </div>
+        `;
+        container.appendChild(el);
+      });
+    }
+
+    function doSearchFromTop(){
+      const q = (document.getElementById('globalSearch').value || '').trim();
+      document.getElementById('searchBox').value = q;
+      navigate('search');
+      setTimeout(doSearch, 10);
+    }
+
+    function populateCategoryFilter(){
+      const select = document.getElementById('catFilter');
+      if(!select) return;
+      const cats = Array.from(new Set(PRODUCTS.map(p => p.category)));
+      select.innerHTML = '<option value="">Todas las categorías</option>' + cats.map(c => `<option value="${escapeHtml(c)}">${escapeHtml(c)}</option>`).join('');
+    }
+
+    /* --------------------------
+       Product detail
+       -------------------------- */
+    let currentOpenProduct = null;
+    function openProduct(id){
+      const p = PRODUCTS.find(x => x.id === id);
+      if(!p) return;
+      currentOpenProduct = id;
+      document.getElementById('detailImage').src = p.image;
+      document.getElementById('detailTitle').textContent = p.name;
+      document.getElementById('detailCategory').textContent = p.category;
+      document.getElementById('detailPrice').textContent = '$' + p.stores[0].price.toFixed(2);
+      document.getElementById('detailStore').textContent = p.stores[0].name;
+      document.getElementById('detailDesc').textContent = p.description;
+      document.getElementById('btnAddDetail').onclick = () => addToCart(p.id);
+      // tiendas
+      const div = document.getElementById('storesCompare'); div.innerHTML = '';
+      p.stores.forEach((s, idx) => {
+        const r = document.createElement('div');
+        r.className = 'product-row';
+        r.style.padding = '10px 0';
+        r.innerHTML = `
+          <div style="flex:1">
+            <div style="font-weight:700">${escapeHtml(s.name)} ${idx===0 ? '<span class="small" style="color:var(--success); font-weight:700;">• Mejor</span>' : ''}</div>
+            <div class="small muted">${s.distance} km • ${s.offer}</div>
+          </div>
+          <div style="text-align:right">
+            <div style="font-weight:800">$${s.price.toFixed(2)}</div>
+            <div style="margin-top:8px;"><button class="btn-ghost" onclick="addToCart(${p.id})">Añadir</button></div>
+          </div>
+        `;
+        div.appendChild(r);
+      });
+      navigate('product');
+    }
+
+    /* --------------------------
+       Cart
+       -------------------------- */
+    function addToCart(id){
+      const p = PRODUCTS.find(x => x.id === id);
+      if(!p) return;
+      const item = state.cart.find(i => i.id === id);
+      if(item) item.qty++;
+      else state.cart.push({ id: id, qty: 1, price: p.stores[0].price, name: p.name });
+      persist();
+      renderCart();
+      toast('Producto añadido al carrito');
+    }
+
+    function renderCart(){
+      const container = document.getElementById('cartItems');
+      container.innerHTML = '';
+      if(state.cart.length === 0){
+        container.innerHTML = '<div class="card" style="text-align:center;">Tu carrito está vacío.</div>';
+        updateTotals();
+        return;
+      }
+      state.cart.forEach(ci => {
+        const p = PRODUCTS.find(x => x.id === ci.id);
+        const el = document.createElement('div');
+        el.className = 'cart-item';
+        el.innerHTML = `
+          <img src="${p.image}" style="width:100px; height:75px; object-fit:cover; border-radius:12px;">
+          <div style="flex:1">
+            <div style="font-weight:800">${escapeHtml(p.name)}</div>
+            <div class="small muted">${escapeHtml(p.stores[0].name)}</div>
+          </div>
+          <div style="display:flex; align-items:center; gap:10px; width:160px; justify-content:center;">
+            <button class="btn-ghost" onclick="changeQty(${ci.id}, -1)">-</button>
+            <div>${ci.qty}</div>
+            <button class="btn-ghost" onclick="changeQty(${ci.id}, 1)">+</button>
+          </div>
+          <div style="width:140px; text-align:right;">
+            <div style="font-weight:800">$${(ci.price * ci.qty).toFixed(2)}</div>
+            <div><button class="btn-ghost" onclick="removeFromCart(${ci.id})">Eliminar</button></div>
+          </div>
+        `;
+        container.appendChild(el);
+      });
+      updateTotals();
+    }
+
+    function changeQty(id, delta){
+      const item = state.cart.find(i => i.id === id);
+      if(!item) return;
+      item.qty += delta;
+      if(item.qty <= 0) state.cart = state.cart.filter(i => i.id !== id);
+      persist();
+      renderCart();
+    }
+
+    function removeFromCart(id){
+      state.cart = state.cart.filter(i => i.id !== id);
+      persist();
+      renderCart();
+    }
+
+    function updateTotals(){
+      const sub = state.cart.reduce((s, i) => s + i.qty * i.price, 0);
+      const saving = Math.round(sub * 0.08 * 100) / 100;
+      const total = Math.round((sub - saving) * 100) / 100;
+      document.getElementById('cartSubtotal').textContent = `$${sub.toFixed(2)}`;
+      document.getElementById('cartSaving').textContent = `$${saving.toFixed(2)}`;
+      document.getElementById('cartTotal').textContent = `$${total.toFixed(2)}`;
+      document.getElementById('bestShop').textContent = state.cart.length ? 'Walmart Altabrisa — 1.2 km' : '—';
+      renderCartBadge();
+    }
+
+    function checkout(){
+      if(state.cart.length === 0){ toast('El carrito está vacío'); return; }
+      toast('Plan de compra generado (simulado).');
+      state.cart = [];
+      persist();
+      renderCart();
+      navigate('home');
+    }
+
+    function saveList(){
+      toast('Lista guardada en tu cuenta (simulado).');
+    }
+
+    function renderCartBadge(){
+      const count = state.cart.reduce((s,i) => s + i.qty, 0);
+      document.getElementById('badgeCart').textContent = count;
+    }
+
+    /* --------------------------
+       Comparison
+       -------------------------- */
+    function populateCompareSelects(){
+      const a = document.getElementById('compareA'), b = document.getElementById('compareB');
+      a.innerHTML = PRODUCTS.map(p => `<option value="${p.id}">${escapeHtml(p.name)}</option>`).join('');
+      b.innerHTML = PRODUCTS.map(p => `<option value="${p.id}">${escapeHtml(p.name)}</option>`).join('');
+    }
+
+    function doCompare(){
+      const aId = parseInt(document.getElementById('compareA').value,10);
+      const bId = parseInt(document.getElementById('compareB').value,10);
+      if(aId === bId){ document.getElementById('compareResult').innerHTML = '<div class="card" style="text-align:center;">Selecciona dos productos distintos.</div>'; return; }
+      const A = PRODUCTS.find(p => p.id === aId), B = PRODUCTS.find(p => p.id === bId);
+      const html = `
+        <div style="display:flex; gap:16px; flex-wrap:wrap;">
+          <div style="flex:1; min-width:280px;" class="card">
+            <div style="display:flex; gap:16px;">
+              <img src="${A.image}" style="width:140px; height:100px; object-fit:cover; border-radius:10px;">
+              <div>
+                <div style="font-weight:800">${escapeHtml(A.name)}</div>
+                <div class="small muted">${escapeHtml(A.category)}</div>
+                <div style="font-weight:800; margin-top:10px; color:var(--accent-2);">$${A.stores[0].price.toFixed(2)}</div>
+                <div class="small muted">${A.stores[0].name}</div>
+              </div>
+            </div>
+          </div>
+
+          <div style="flex:1; min-width:280px;" class="card">
+            <div style="display:flex; gap:16px;">
+              <img src="${B.image}" style="width:140px; height:100px; object-fit:cover; border-radius:10px;">
+              <div>
+                <div style="font-weight:800">${escapeHtml(B.name)}</div>
+                <div class="small muted">${escapeHtml(B.category)}</div>
+                <div style="font-weight:800; margin-top:10px; color:var(--accent-2);">$${B.stores[0].price.toFixed(2)}</div>
+                <div class="small muted">${B.stores[0].name}</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      `;
+      document.getElementById('compareResult').innerHTML = html;
+    }
+
+    /* --------------------------
+       Stores / Map
+       -------------------------- */
+    function renderStores(){
+      const list = document.getElementById('storeList');
+      list.innerHTML = '';
+      STORES.forEach((s, i) => {
+        const el = document.createElement('div');
+        el.style.padding = '12px';
+        el.style.borderRadius = '10px';
+        el.style.background = 'white';
+        el.style.boxShadow = 'var(--shadow)';
+        el.innerHTML = `
+          <div style="font-weight:700">${escapeHtml(s.name)}</div>
+          <div class="small muted">📍 ${s.lat.toFixed(3)}, ${s.lng.toFixed(3)} • ${s.avg}</div>
+          <div style="margin-top:10px;"><button class="btn-ghost" onclick="navigate('compare')">Ver productos</button> <button class="btn-ghost" onclick="alert('Cómo llegar (simulado)')">Cómo llegar</button></div>
+        `;
+        list.appendChild(el);
+      });
+    }
+
+    function focusStore(i){
+      navigate('map');
+      toast('Centrando mapa en: ' + STORES[i].name + ' (simulado)');
+    }
+
+    /* --------------------------
+       Profile & Followed
+       -------------------------- */
+    function renderProfile(){
+      const u = state.user;
+      const nameEl = document.getElementById('profileName'), emailEl = document.getElementById('profileEmail');
+      const inputName = document.getElementById('profileInputName'), inputEmail = document.getElementById('profileInputEmail');
+      if(u){
+        nameEl.textContent = u.name || 'Usuario';
+        emailEl.textContent = u.email || 'usuario@demo';
+        inputName.value = u.name || '';
+        inputEmail.value = u.email || '';
+        document.getElementById('avatarChar').textContent = (u.name || 'U').charAt(0).toUpperCase();
+      } else {
+        nameEl.textContent = 'Invitado';
+        emailEl.textContent = 'invitado@demo';
+        inputName.value = '';
+        inputEmail.value = '';
+        document.getElementById('avatarChar').textContent = 'I';
+      }
+      renderFollowed();
+    }
+
+    function saveProfile(){
+      const name = document.getElementById('profileInputName').value.trim();
+      const email = document.getElementById('profileInputEmail').value.trim();
+      if(!email.includes('@')){ toast('Correo inválido'); return; }
+      state.user = { name: name || 'Usuario', email: email };
+      persist();
+      renderProfile();
+      toast('Perfil actualizado');
+    }
+
+    function renderFollowed(){
+      const container = document.getElementById('followedList');
+      container.innerHTML = '';
+      if(state.followed.length === 0){ container.innerHTML = '<div class="muted small">No sigues productos.</div>'; return; }
+      state.followed.forEach(id => {
+        const p = PRODUCTS.find(x => x.id === id);
+        if(!p) return;
+        const el = document.createElement('div');
+        el.style.minWidth = '200px';
+        el.innerHTML = `
+          <div style="display:flex; gap:10px; align-items:center; padding:10px; border-radius:10px; background: white; box-shadow: var(--shadow);">
+            <img src="${p.image}" style="width:64px; height:50px; object-fit:cover; border-radius:8px;">
+            <div style="flex:1;">
+              <div style="font-weight:700">${escapeHtml(p.name)}</div>
+              <div class="small muted">$${p.stores[0].price.toFixed(2)}</div>
+            </div>
+            <div><button class="btn-ghost" onclick="unfollow(${p.id})">Quitar</button></div>
+          </div>
+        `;
+        container.appendChild(el);
+      });
+    }
+
+    function followProduct(id){
+      if(!state.followed.includes(id)){
+        state.followed.push(id);
+        persist();
+        renderFollowed();
+        toast('Ahora sigues el producto');
+      } else {
+        toast('Ya sigues este producto');
+      }
+    }
+    function unfollow(id){
+      state.followed = state.followed.filter(x => x !== id);
+      persist();
+      renderFollowed();
+    }
+
+    /* --------------------------
+       Chat (simulado)
+       -------------------------- */
+    function setChatExample(t){ document.getElementById('chatInput').value = t; }
+    function sendChat(){
+      const v = document.getElementById('chatInput').value.trim();
+      if(!v) return;
+      appendChat('user', v);
+      document.getElementById('chatInput').value = '';
+      setTimeout(() => {
+        const m = v.toLowerCase();
+        let resp = 'Lo siento, no tengo datos para eso.';
+        if(m.includes('leche')) resp = 'Soriana: Leche $24.30 • 2.1 km. Walmart: $23.50 • 1.2 km.';
+        else if(m.includes('huevo')) resp = 'Walmart: Huevo 30pz $68.50 • 1.2 km.';
+        else if(m.includes('frijol')) resp = 'Chedraui: Frijol 1kg $35.50 • 3.5 km.';
+        else if(m.includes('oferta') || m.includes('ofertas')) resp = 'Hay ofertas destacadas en Leche, Aceite y Arroz. ¿Quieres comparar alguno?';
+        appendChat('bot', resp);
+      }, 800);
+    }
+    function appendChat(who, text){
+      const w = document.getElementById('chatWindow');
+      const b = document.createElement('div');
+      b.className = 'bubble ' + (who === 'user' ? 'user' : 'bot');
+      b.innerHTML = `<strong>${who === 'user' ? 'Tú' : 'SmartPrice'}:</strong> ${escapeHtml(text)}`;
+      w.appendChild(b);
+      w.scrollTop = w.scrollHeight;
+    }
+
+    /* --------------------------
+       Login & Auth
+       -------------------------- */
+    function login(){
+      const email = document.getElementById('inputEmail').value.trim();
+      const pass = document.getElementById('inputPass').value.trim();
+      const msg = document.getElementById('loginMsg');
+      if(!email || !email.includes('@')){ msg.textContent = 'Ingresa un correo válido.'; return; }
+      if(pass.length < 4){ msg.textContent = 'La contraseña debe tener al menos 4 caracteres.'; return; }
+      state.user = { name: email.split('@')[0], email: email };
+      persist();
+      msg.textContent = '';
+      toast('Sesión iniciada');
+      renderProfile();
+      navigate('home');
+    }
+
+    function loginAsGuest(){
+      state.user = { name: 'Invitado', email: 'invitado@demo' };
+      persist();
+      toast('Entraste como invitado');
+      navigate('home');
+    }
+
+    function logout(){
+      state.user = null;
+      persist();
+      toast('Sesión cerrada');
+      navigate('splash');
+      renderProfile();
+    }
+
+    /* --------------------------
+       Utilities
+       -------------------------- */
+    function escapeHtml(s){ if(!s && s !== 0) return ''; return String(s).replace(/[&<>"'`]/g, function(m){ return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;','`':'&#96;'})[m]; }); }
+
+    function toast(msg){
+      // simple toast (temporary)
+      const t = document.createElement('div');
+      t.textContent = msg;
+      t.style.position = 'fixed';
+      t.style.right = '20px';
+      t.style.bottom = '20px';
+      t.style.padding = '14px 18px';
+      t.style.background = 'white';
+      t.style.border = '1px solid rgba(0,0,0,0.05)';
+      t.style.borderRadius = '12px';
+      t.style.boxShadow = 'var(--shadow-hover)';
+      t.style.color = 'var(--text)';
+      t.style.zIndex = '9999';
+      t.style.fontWeight = '600';
+      document.body.appendChild(t);
+      setTimeout(()=> t.style.opacity = '0', 2200);
+      setTimeout(()=> document.body.removeChild(t), 2600);
+    }
+
+    /* --------------------------
+       Small helpers on load
+       -------------------------- */
+    function init(){
+      renderProducts();
+      populateCategoryFilter();
+      populateCompareSelects();
+      renderStores();
+      renderProfile();
+      renderCartBadge();
+      // keep initial nav highlighting
+      document.querySelectorAll('.navlinks button')[0].classList.add('active');
+    }
+    window.addEventListener('load', init);
+  </script>
+</body>
+</html>
