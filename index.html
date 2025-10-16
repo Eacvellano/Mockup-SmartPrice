@@ -270,7 +270,7 @@
       <div class="splash">
         <div style="max-width:62%;">
           <h1>SmartPrice — Tu compra inteligente</h1>
-          <p>Compara precios en tiempo real, recibe alertas personalizadas y ahorra en tu compra semanal. Integrado con 5 supermercados principales y validado por Profeco.</p>
+          <p>Compara precios en tiempo real, recibe alertas personalizadas y ahorra en tu compra semanal. Integrado con 5 supermercados principales.</p>
 
           <div style="display:flex; gap:12px; margin-top:16px;">
             <button class="btn-primary" onclick="navigate('home')">Explorar productos</button>
@@ -280,7 +280,7 @@
           <div style="display:flex; gap:12px; margin-top:20px; flex-wrap:wrap;">
             <div style="display:flex; align-items:center; gap:6px;">
               <div style="width:12px; height:12px; border-radius:50%; background:var(--success);"></div>
-              <span class="small">Validado por Profeco</span>
+              <span class="small">Precios validados</span>
             </div>
             <div style="display:flex; align-items:center; gap:6px;">
               <div style="width:12px; height:12px; border-radius:50%; background:var(--accent);"></div>
@@ -342,7 +342,6 @@
                 <li>Historial de precios de 12 meses</li>
                 <li>Alertas personalizadas de ofertas</li>
                 <li>Predicciones de precios con IA</li>
-                <li>Validación Profeco integrada</li>
                 <li>Listas de compra inteligentes</li>
               </ul>
             </div>
@@ -399,12 +398,11 @@
     <section id="compare" class="app-section">
       <div style="display:flex; justify-content:space-between; align-items:center;">
         <div>
-          <h2 style="margin:0">Comparar productos</h2>
-          <div class="small muted">Comparación detallada con precios por unidad y ahorro potencial</div>
+          <h2 style="margin:0">Comparar precios por tienda</h2>
+          <div class="small muted">Selecciona un producto para ver precios en diferentes tiendas</div>
         </div>
         <div style="display:flex; gap:10px; align-items:center;">
-          <select id="compareA" style="padding:12px; border-radius:12px; background:white; border:1px solid rgba(0,0,0,0.08); color:var(--text); box-shadow: 0 4px 12px rgba(0,0,0,0.05);"></select>
-          <select id="compareB" style="padding:12px; border-radius:12px; background:white; border:1px solid rgba(0,0,0,0.08); color:var(--text); box-shadow: 0 4px 12px rgba(0,0,0,0.05);"></select>
+          <select id="compareProduct" style="padding:12px; border-radius:12px; background:white; border:1px solid rgba(0,0,0,0.08); color:var(--text); box-shadow: 0 4px 12px rgba(0,0,0,0.05);"></select>
           <button class="btn-primary" onclick="doCompare()">Comparar</button>
         </div>
       </div>
@@ -433,9 +431,9 @@
 
             <p class="muted small mt-12" id="detailDesc"></p>
             
-            <!-- Predicción de precios con IA (RF4) -->
+            <!-- Predicción de precios -->
             <div id="pricePrediction" style="margin-top:12px; display:none;">
-              <div class="prediction-badge">Predicción IA: Precio bajará en 7 días</div>
+              <div class="prediction-badge">Predicción: Precio bajará en 7 días</div>
               <div style="margin-top:6px;">
                 <div class="small muted">Confianza: 85%</div>
                 <div class="confidence-bar">
@@ -444,11 +442,11 @@
               </div>
             </div>
 
-            <!-- Validación Profeco (RF8) -->
-            <div id="profecoValidation" style="margin-top:12px; display:none;">
+            <!-- Validación -->
+            <div id="priceValidation" style="margin-top:12px; display:none;">
               <div style="display:flex; align-items:center; gap:8px;">
-                <span class="badge badge-success">Validado por Profeco</span>
-                <span class="small muted">Precio coincide con Quién es Quién</span>
+                <span class="badge badge-success">Precio validado</span>
+                <span class="small muted">Coincide con fuentes oficiales</span>
               </div>
             </div>
 
@@ -457,7 +455,7 @@
               <button class="btn-ghost" onclick="followProduct(currentOpenProduct)">Seguir producto</button>
             </div>
             
-            <!-- Reportar precio incorrecto (RF12) -->
+            <!-- Reportar precio incorrecto -->
             <div style="margin-top:12px;">
               <button class="btn-ghost small" onclick="toggleReportForm()">Reportar precio incorrecto</button>
               <div id="reportForm" class="report-form" style="display:none;">
@@ -495,7 +493,7 @@
             </div>
 
             <div style="margin-top:12px;">
-              <h5 style="margin:10px 0 8px 0">Historial de precios (RF2)</h5>
+              <h5 style="margin:10px 0 8px 0">Historial de precios</h5>
               <div class="price-history">
                 <div style="text-align:center;">
                   <div style="font-size:2rem;">📊</div>
@@ -533,7 +531,7 @@
             <div style="margin-top:16px;" class="small muted">Mejor opción: <span id="bestShop">—</span></div>
           </div>
           
-          <!-- Notificaciones (RF10) -->
+          <!-- Notificaciones -->
           <div class="card" style="margin-top:16px;">
             <h4 style="margin:0 0 8px 0;">Alertas de precio</h4>
             <div id="priceAlerts">
@@ -611,7 +609,7 @@
         </div>
 
         <div style="width:260px;">
-          <h4 style="margin:0 0 10px 0">Preferencias (RF9)</h4>
+          <h4 style="margin:0 0 10px 0">Preferencias</h4>
           <div class="small muted">Notificaciones: <input type="checkbox" id="prefOffers" checked></div>
           <div class="small muted" style="margin-top:8px;">Alertas de precio: <input type="checkbox" id="prefAlerts" checked></div>
           <div class="small muted" style="margin-top:8px;">Modo de búsqueda:</div>
@@ -641,7 +639,7 @@
 
     <!-- CHAT -->
     <section id="chat" class="app-section">
-      <h2>Asistente Virtual SmartPrice (RF7)</h2>
+      <h2>Asistente Virtual SmartPrice</h2>
       <div style="display:flex; gap:16px; flex-wrap:wrap;">
         <div style="flex:1 1 680px;">
           <div class="card">
@@ -665,13 +663,13 @@
               <button class="btn-ghost" onclick="setChatExample('¿Dónde está más barata la leche?')">¿Dónde está más barata la leche?</button>
               <button class="btn-ghost" onclick="setChatExample('Necesito comprar huevo')">Necesito comprar huevo</button>
               <button class="btn-ghost" onclick="setChatExample('Muéstrame ofertas de hoy')">Muéstrame ofertas</button>
-              <button class="btn-ghost" onclick="setChatExample('¿Qué productos validó Profeco?')">Productos validados por Profeco</button>
+              <button class="btn-ghost" onclick="setChatExample('¿Qué productos tienen validación?')">Productos validados</button>
             </div>
           </div>
           
           <div class="card" style="margin-top:16px;">
-            <h4 style="margin:0 0 8px 0">Información Profeco (RF8)</h4>
-            <div class="small muted">Consulta semanal a "Quién es Quién en los Precios"</div>
+            <h4 style="margin:0 0 8px 0">Información de precios</h4>
+            <div class="small muted">Consulta semanal a fuentes oficiales</div>
             <div style="margin-top:8px; display:flex; align-items:center; gap:6px;">
               <div style="width:8px; height:8px; border-radius:50%; background:var(--success);"></div>
               <span class="small">1,250 productos validados</span>
@@ -688,7 +686,7 @@
   </div>
 
   <footer>
-    © 2025 SmartPrice — Mockup interactivo • Cumple con estándares WCAG 2.1 • Protección de datos LFPDPPP
+    © 2025 SmartPrice — Mockup interactivo • Cumple con estándares de accesibilidad • Protección de datos
   </footer>
 
   <!-- SCRIPT: Lógica del mockup -->
@@ -709,7 +707,7 @@
       { id:4, name:'Arroz SOS 1kg', category:'Granos', image:'https://images.unsplash.com/photo-1541557435984-1c79686a49a1?q=80&w=1000&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8M3x8YXJyb3p8ZW58MHx8MHx8fDA%3D', description:'Arroz blanco 1kg', stores:[
         {name:'Walmart Altabrisa', price:28.5, distance:1.2, offer:'🟢'}, {name:'Soriana Montejo', price:26.9, distance:2.1, offer:'🟢'}, {name:'Chedraui Itzaes', price:27.8, distance:3.5, offer:'🟡'}
       ]},
-      { id:5, name:'Aceite Capullo 1L', category:'Aceites', image:'https://images.unsplash.com/photo-1615634260167-54b77ddc196d?q=80&w=1000&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8YWNlaXRlJTIwY29taWRhfGVufDB8fDB8fHww', description:'Aceite vegetal 1L', stores:[
+      { id:5, name:'Aceite Capullo 1L', category:'Aceites', image:'https://images.unsplash.com/photo-1589964699190-3d84afe89561?q=80&w=1000&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8YWNlaXRlfGVufDB8fDB8fHww', description:'Aceite vegetal 1L', stores:[
         {name:'Walmart Altabrisa', price:45.0, distance:1.2, offer:'🟡'}, {name:'Soriana Montejo', price:42.5, distance:2.1, offer:'🟢'}, {name:'Chedraui Itzaes', price:43.8, distance:3.5, offer:'🟢'}
       ]},
       { id:6, name:'Pan Bimbo Grande', category:'Panadería', image:'https://images.unsplash.com/photo-1509440159596-0249088772ff?q=80&w=1000&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8cGFufGVufDB8fDB8fHww', description:'Pan de caja grande', stores:[
@@ -886,18 +884,18 @@
       document.getElementById('detailDesc').textContent = p.description;
       document.getElementById('btnAddDetail').onclick = () => addToCart(p.id);
       
-      // Mostrar predicción de precios para algunos productos (RF4)
+      // Mostrar predicción de precios para algunos productos
       if(id === 1 || id === 3) {
         document.getElementById('pricePrediction').style.display = 'block';
       } else {
         document.getElementById('pricePrediction').style.display = 'none';
       }
       
-      // Mostrar validación Profeco para algunos productos (RF8)
+      // Mostrar validación para algunos productos
       if(id === 2 || id === 4) {
-        document.getElementById('profecoValidation').style.display = 'block';
+        document.getElementById('priceValidation').style.display = 'block';
       } else {
-        document.getElementById('profecoValidation').style.display = 'none';
+        document.getElementById('priceValidation').style.display = 'none';
       }
       
       // tiendas
@@ -1023,69 +1021,63 @@
     }
 
     /* --------------------------
-       Comparison
+       Comparison - Ahora compara el mismo producto en diferentes tiendas
        -------------------------- */
     function populateCompareSelects(){
-      const a = document.getElementById('compareA'), b = document.getElementById('compareB');
-      a.innerHTML = PRODUCTS.map(p => `<option value="${p.id}">${escapeHtml(p.name)}</option>`).join('');
-      b.innerHTML = PRODUCTS.map(p => `<option value="${p.id}">${escapeHtml(p.name)}</option>`).join('');
+      const select = document.getElementById('compareProduct');
+      select.innerHTML = PRODUCTS.map(p => `<option value="${p.id}">${escapeHtml(p.name)}</option>`).join('');
     }
 
     function doCompare(){
-      const aId = parseInt(document.getElementById('compareA').value,10);
-      const bId = parseInt(document.getElementById('compareB').value,10);
-      if(aId === bId){ document.getElementById('compareResult').innerHTML = '<div class="card" style="text-align:center;">Selecciona dos productos distintos.</div>'; return; }
-      const A = PRODUCTS.find(p => p.id === aId), B = PRODUCTS.find(p => p.id === bId);
+      const productId = parseInt(document.getElementById('compareProduct').value,10);
+      const product = PRODUCTS.find(p => p.id === productId);
+      
+      if(!product) {
+        document.getElementById('compareResult').innerHTML = '<div class="card" style="text-align:center;">Selecciona un producto para comparar.</div>'; 
+        return;
+      }
+      
+      // Ordenar tiendas por precio
+      const sortedStores = [...product.stores].sort((a, b) => a.price - b.price);
+      
       const html = `
-        <div style="display:flex; gap:16px; flex-wrap:wrap;">
-          <div style="flex:1; min-width:280px;" class="card">
-            <div style="display:flex; gap:16px;">
-              <img src="${A.image}" style="width:140px; height:100px; object-fit:cover; border-radius:10px;">
-              <div>
-                <div style="font-weight:800">${escapeHtml(A.name)}</div>
-                <div class="small muted">${escapeHtml(A.category)}</div>
-                <div style="font-weight:800; margin-top:10px; color:var(--accent-2);">$${A.stores[0].price.toFixed(2)}</div>
-                <div class="small muted">${A.stores[0].name}</div>
-              </div>
+        <div class="card">
+          <div style="display:flex; gap:16px; align-items:center; margin-bottom:16px;">
+            <img src="${product.image}" style="width:120px; height:90px; object-fit:cover; border-radius:10px;">
+            <div>
+              <div style="font-weight:800; font-size:1.2rem">${escapeHtml(product.name)}</div>
+              <div class="muted small">${escapeHtml(product.category)}</div>
             </div>
           </div>
-
-          <div style="flex:1; min-width:280px;" class="card">
-            <div style="display:flex; gap:16px;">
-              <img src="${B.image}" style="width:140px; height:100px; object-fit:cover; border-radius:10px;">
-              <div>
-                <div style="font-weight:800">${escapeHtml(B.name)}</div>
-                <div class="small muted">${escapeHtml(B.category)}</div>
-                <div style="font-weight:800; margin-top:10px; color:var(--accent-2);">$${B.stores[0].price.toFixed(2)}</div>
-                <div class="small muted">${B.stores[0].name}</div>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div class="card mt-12">
-          <h4 style="margin:0 0 12px 0;">Análisis detallado</h4>
+          
+          <h4 style="margin:0 0 12px 0;">Comparación de precios por tienda</h4>
           <table class="table">
-            <tr>
-              <th></th>
-              <th>${escapeHtml(A.name)}</th>
-              <th>${escapeHtml(B.name)}</th>
-            </tr>
-            <tr>
-              <td>Mejor precio</td>
-              <td>$${Math.min(...A.stores.map(s => s.price)).toFixed(2)}</td>
-              <td>$${Math.min(...B.stores.map(s => s.price)).toFixed(2)}</td>
-            </tr>
-            <tr>
-              <td>Tienda con mejor precio</td>
-              <td>${A.stores.find(s => s.price === Math.min(...A.stores.map(s => s.price))).name}</td>
-              <td>${B.stores.find(s => s.price === Math.min(...B.stores.map(s => s.price))).name}</td>
-            </tr>
-            <tr>
-              <td>Ahorro potencial</td>
-              <td>$${(A.stores[0].price - Math.min(...A.stores.map(s => s.price))).toFixed(2)}</td>
-              <td>$${(B.stores[0].price - Math.min(...B.stores.map(s => s.price))).toFixed(2)}</td>
-            </tr>
+            <thead>
+              <tr>
+                <th>Tienda</th>
+                <th>Precio</th>
+                <th>Distancia</th>
+                <th>Oferta</th>
+                <th>Acción</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${sortedStores.map((store, index) => `
+                <tr ${index === 0 ? 'class="best"' : ''}>
+                  <td>${escapeHtml(store.name)}</td>
+                  <td style="font-weight:800; color:var(--accent-2);">$${store.price.toFixed(2)}</td>
+                  <td>${store.distance} km</td>
+                  <td>${store.offer}</td>
+                  <td><button class="btn-ghost small" onclick="addToCart(${product.id})">Añadir</button></td>
+                </tr>
+              `).join('')}
+            </tbody>
           </table>
+          
+          <div style="margin-top:16px; padding:12px; border-radius:10px; background: rgba(30,136,229,0.05);">
+            <div style="font-weight:700; color:var(--accent);">Recomendación:</div>
+            <div class="small muted">${sortedStores[0].name} tiene el mejor precio ($${sortedStores[0].price.toFixed(2)}) con una distancia de ${sortedStores[0].distance} km.</div>
+          </div>
         </div>
       `;
       document.getElementById('compareResult').innerHTML = html;
@@ -1202,12 +1194,13 @@
         const m = v.toLowerCase();
         let resp = 'Lo siento, no tengo datos para eso.';
         if(m.includes('leche')) resp = 'La leche Alpura 1L está más barata en Chedraui Itzaes a $22.90 (ahorro de $0.60 vs Walmart). Distancia: 3.5 km.';
-        else if(m.includes('huevo')) resp = 'El huevo blanco 30pz tiene mejor precio en Soriana Montejo: $65.90. En Walmart cuesta $68.50. Validado por Profeco.';
-        else if(m.includes('frijol')) resp = 'El frijol negro 1kg está en oferta en Soriana Montejo por $35.50. Predicción IA: precio estable por 14 días (confianza 78%).';
-        else if(m.includes('arroz')) resp = 'El arroz SOS 1kg cuesta $26.90 en Soriana Montejo. Precio validado por Profeco. Distancia: 2.1 km.';
+        else if(m.includes('huevo')) resp = 'El huevo blanco 30pz tiene mejor precio en Soriana Montejo: $65.90. En Walmart cuesta $68.50.';
+        else if(m.includes('frijol')) resp = 'El frijol negro 1kg está en oferta en Soriana Montejo por $35.50. Predicción: precio estable por 14 días.';
+        else if(m.includes('arroz')) resp = 'El arroz SOS 1kg cuesta $26.90 en Soriana Montejo. Precio validado. Distancia: 2.1 km.';
+        else if(m.includes('aceite')) resp = 'El aceite Capullo 1L tiene mejor precio en Soriana Montejo: $42.50. En Walmart cuesta $45.00.';
         else if(m.includes('oferta') || m.includes('ofertas')) resp = 'Ofertas destacadas hoy: Frijol negro en Soriana ($35.50), Huevo en Soriana ($65.90), Aceite en Soriana ($42.50).';
-        else if(m.includes('profeco')) resp = 'Productos validados por Profeco esta semana: Huevo blanco 30pz, Arroz SOS 1kg, Leche Alpura 1L, Aceite Capullo 1L.';
-        else if(m.includes('predicción') || m.includes('predecir')) resp = 'Basado en histórico de precios, predigo que la leche bajará 5% en 7 días (confianza 72%) y el huevo subirá 3% en 14 días (confianza 65%).';
+        else if(m.includes('validado') || m.includes('validación')) resp = 'Productos con validación esta semana: Huevo blanco 30pz, Arroz SOS 1kg, Leche Alpura 1L, Aceite Capullo 1L.';
+        else if(m.includes('predicción') || m.includes('predecir')) resp = 'Basado en histórico de precios, predigo que la leche bajará 5% en 7 días y el huevo subirá 3% en 14 días.';
         appendChat('bot', resp);
       }, 800);
     }
