@@ -138,16 +138,226 @@
     footer{ text-align:center; padding:24px; color:var(--muted); font-size:0.92rem; margin-top:32px; }
 
     /* Responsive */
+        /* Responsive */
     @media (max-width:960px){
       .search-input{ width:240px; }
       .splash{ flex-direction:column; gap:18px; }
       .splash h1{ font-size:2.2rem; }
     }
+    
+    @media (max-width:768px) {
+      .topbar {
+        flex-wrap: wrap;
+        padding: 12px 16px;
+      }
+      
+      .brand .title {
+        font-size: 1rem;
+      }
+      
+      .search-input {
+        width: 100%;
+        max-width: 300px;
+      }
+      
+      .splash {
+        padding: 20px;
+      }
+      
+      .splash h1 {
+        font-size: 2rem;
+      }
+      
+      .splash > div:first-child,
+      .splash > div:last-child {
+        max-width: 100% !important;
+        width: 100% !important;
+      }
+      
+      .wrap {
+        padding: 0 16px;
+      }
+      
+      .product-grid {
+        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      }
+      
+      .product-info {
+        padding: 14px;
+      }
+      
+      .navlinks {
+        order: 3;
+        width: 100%;
+        justify-content: center;
+        margin-top: 10px;
+        overflow-x: auto;
+      }
+      
+      .navlinks button {
+        padding: 8px 12px;
+        font-size: 0.9rem;
+        white-space: nowrap;
+      }
+      
+      .search-wrap {
+        order: 2;
+        margin-top: 10px;
+        width: 100%;
+        justify-content: center;
+      }
+      
+      .brand {
+        order: 1;
+      }
+      
+      /* Ajustes para secciones específicas */
+      section.app-section > div:first-child {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+      
+      section.app-section > div:first-child > div:last-child {
+        margin-top: 16px;
+        width: 100%;
+      }
+      
+      /* Ajustes para formularios */
+      input, select {
+        max-width: 100%;
+      }
+      
+      /* Ajustes para tablas */
+      .table {
+        font-size: 0.85rem;
+      }
+      
+      .table th, .table td {
+        padding: 10px 8px;
+      }
+      
+      /* Ajustes para el carrito */
+      .cart-item {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 12px;
+      }
+      
+      .cart-item > div:last-child {
+        width: 100%;
+        text-align: left;
+      }
+      
+      /* Ajustes para el perfil */
+      .profile-card {
+        flex-direction: column;
+        text-align: center;
+      }
+      
+      /* Ajustes para el mapa */
+      .map-overlay .map-controls {
+        max-width: 95%;
+        padding: 12px 16px;
+      }
+      
+      .map-overlay .map-controls button {
+        padding: 8px 12px;
+        font-size: 0.85rem;
+      }
+    }
+    
     @media (max-width:680px){
-      .navlinks{ display:none; }
-      .search-input{ width:160px; }
+      .navlinks{ display:flex; } /* Cambiado de none a flex para mantener la navegación visible */
+      .search-input{ width:100%; max-width: 280px; }
       .product-image{ height:160px; }
       .splash h1{ font-size:1.8rem; }
+    }
+    
+    @media (max-width:480px) {
+      .topbar {
+        padding: 10px 12px;
+      }
+      
+      .splash h1 {
+        font-size: 1.7rem;
+      }
+      
+      .splash p {
+        font-size: 1rem;
+      }
+      
+      .product-grid {
+        grid-template-columns: 1fr;
+      }
+      
+      .product-card {
+        margin: 0 auto;
+        max-width: 100%;
+      }
+      
+      .navlinks button {
+        padding: 6px 10px;
+        font-size: 0.8rem;
+      }
+      
+      .btn-primary, .btn-ghost {
+        padding: 8px 12px;
+        font-size: 0.9rem;
+      }
+      
+      .card {
+        padding: 16px;
+      }
+      
+      .search-input {
+        font-size: 0.9rem;
+        padding: 10px 14px;
+      }
+      
+      .wrap {
+        margin: 20px auto;
+      }
+      
+      /* Ajustes para el chat */
+      .bubble {
+        max-width: 90%;
+        padding: 10px 14px;
+      }
+      
+      /* Ajustes para elementos de formulario en perfil */
+      #profileInputName, #profileInputEmail {
+        font-size: 0.9rem;
+        padding: 10px;
+      }
+    }
+    
+    @media (max-width:360px) {
+      .splash h1 {
+        font-size: 1.5rem;
+      }
+      
+      .navlinks {
+        gap: 4px;
+      }
+      
+      .navlinks button {
+        padding: 5px 8px;
+        font-size: 0.75rem;
+      }
+      
+      .brand .logo {
+        width: 40px;
+        height: 40px;
+      }
+      
+      .brand .title {
+        font-size: 0.9rem;
+      }
+      
+      .btn-primary, .btn-ghost {
+        padding: 7px 10px;
+        font-size: 0.85rem;
+      }
     }
 
     /* small utilities */
