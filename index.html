@@ -648,26 +648,6 @@
       font-size: 1.5rem;
     }
     
-    /* Comparación visual en hero section */
-    .comparison-demo {
-      background: white;
-      border-radius: 12px;
-      padding: 16px;
-      box-shadow: var(--shadow);
-      margin-top: 20px;
-    }
-    
-    .comparison-item {
-      display: flex;
-      justify-content: space-between;
-      padding: 8px 0;
-      border-bottom: 1px solid rgba(0,0,0,0.05);
-    }
-    
-    .comparison-item:last-child {
-      border-bottom: none;
-    }
-    
     /* Indicadores de tendencia de precios */
     .trend-up {
       color: #f44336;
@@ -755,25 +735,6 @@
       background: var(--accent);
       color: white;
       border-color: var(--accent);
-    }
-    
-    /* Barra de progreso de envío gratis */
-    .free-shipping-progress {
-      margin: 16px 0;
-    }
-    
-    .progress-bar {
-      height: 8px;
-      background: rgba(0,0,0,0.1);
-      border-radius: 4px;
-      overflow: hidden;
-      margin-top: 8px;
-    }
-    
-    .progress-fill {
-      height: 100%;
-      background: var(--accent);
-      border-radius: 4px;
     }
     
     /* Tooltip */
@@ -971,9 +932,7 @@
     <div class="navlinks" id="topNav">
       <button onclick="navigate('home')" class="active" title="Página de inicio">🏠 Inicio</button>
       <button onclick="navigate('search')" title="Buscar productos">🔍 Buscar</button>
-      <button onclick="navigate('compare')" title="Compara precios entre supermercados" class="tooltip">📊 Comparar Precios
-        <span class="tooltiptext">Compara precios entre supermercados</span>
-      </button>
+      <button onclick="navigate('compare')" title="Comparar precios entre tiendas">📊 Comparar Precios</button>
       <button onclick="navigate('map')" title="Mapa de tiendas">🗺️ Mapa</button>
       <button onclick="navigate('cart')" title="Carrito de compras">🛒 Carrito <span id="badgeCart" style="background:rgba(30,136,229,0.1); color:var(--accent); padding:4px 8px; border-radius:999px; margin-left:6px; font-weight:700;">0</span></button>
       <button onclick="navigate('profile')" title="Mi perfil">👤 Perfil</button>
@@ -1027,26 +986,6 @@
                 <div style="font-weight:700;">Encontrar</div>
                 <div class="small">Las mejores ofertas cerca</div>
               </div>
-            </div>
-          </div>
-          
-          <!-- Ejemplo visual de comparación de precios -->
-          <div class="comparison-demo">
-            <div style="font-weight:700; margin-bottom:12px;">Comparación de precios - Leche Alpura 1L</div>
-            <div class="comparison-item">
-              <div>Walmart Altabrisa</div>
-              <div style="font-weight:700;">$23.50</div>
-            </div>
-            <div class="comparison-item">
-              <div>Soriana Montejo</div>
-              <div style="font-weight:700;">$24.30</div>
-            </div>
-            <div class="comparison-item">
-              <div>Chedraui Itzaes</div>
-              <div style="font-weight:700; color:var(--success);">$22.90</div>
-            </div>
-            <div style="margin-top:12px; padding:8px; background:rgba(67,160,71,0.1); border-radius:8px; font-weight:700; color:var(--success);">
-              Ahorras $1.40 comprando en Chedraui
             </div>
           </div>
         </div>
@@ -1282,15 +1221,6 @@
         <div style="flex:1 1 640px;">
           <div id="cartItems" class="card">
             <!-- items -->
-          </div>
-          
-          <!-- Barra de progreso hacia envío gratis -->
-          <div class="card free-shipping-progress">
-            <h4 style="margin:0 0 8px 0;">Envío gratis</h4>
-            <div class="small muted">Faltan $150.00 para envío gratis</div>
-            <div class="progress-bar">
-              <div class="progress-fill" style="width: 30%;"></div>
-            </div>
           </div>
         </div>
 
@@ -2061,9 +1991,9 @@
           <div style="margin-top: 20px;">
             <h5 style="margin:0 0 10px 0;">Comparación Visual de Precios</h5>
             <div class="comparison-chart">
-              ${sortedStores.map(store => {
+              ${sortedStores.map((store, index) => {
                 const barHeight = (store.price / maxPrice) * 80;
-                const isBest = store === sortedStores[0];
+                const isBest = index === 0;
                 return `
                   <div class="chart-bar">
                     <div class="bar" style="height: ${barHeight}%; background: ${isBest ? 'var(--success)' : 'var(--accent)'};"></div>
