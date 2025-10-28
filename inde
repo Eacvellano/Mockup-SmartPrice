@@ -685,86 +685,37 @@
       font-weight: 700;
     }
     
-    /* Gráfico de comparación - ESTILOS MEJORADOS */
-    .comparison-chart-container {
-      background: #f8f9fa;
-      padding: 25px;
-      border-radius: 16px;
-      margin: 25px 0;
-    }
-    
+    /* Gráfico de comparación - ESTILOS CORREGIDOS */
     .comparison-chart {
       display: flex;
       align-items: flex-end;
-      height: 200px;
-      gap: 20px;
-      padding: 0 20px;
-      position: relative;
-      border-bottom: 2px solid #bdc3c7;
-    }
-    
-    .chart-bar-container {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      width: 30%;
-      height: 100%;
+      height: 150px;
+      gap: 10px;
+      margin: 20px 0;
+      padding: 10px;
+      background: #f9f9f9;
+      border-radius: 8px;
     }
     
     .chart-bar {
-      width: 70px;
-      background: linear-gradient(to top, #3498db, #2980b9);
-      border-radius: 8px 8px 0 0;
-      position: relative;
-      transition: height 1.5s ease-out;
-      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      height: 100%;
     }
     
-    .chart-bar.lowest {
-      background: linear-gradient(to top, #2ecc71, #27ae60);
-      animation: pulse 2s infinite;
+    .bar {
+      width: 100%;
+      border-radius: 4px 4px 0 0;
+      transition: height 0.3s ease;
+      min-height: 20px;
     }
     
     .bar-label {
-      margin-top: 15px;
-      font-weight: 600;
-      color: #34495e;
+      margin-top: 8px;
+      font-size: 0.8rem;
       text-align: center;
-      font-size: 14px;
-    }
-    
-    .bar-price {
-      position: absolute;
-      top: -40px;
-      left: 50%;
-      transform: translateX(-50%);
-      background-color: white;
-      padding: 6px 12px;
-      border-radius: 20px;
-      font-weight: bold;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-      font-size: 15px;
-      color: #2c3e50;
-      min-width: 80px;
-      text-align: center;
-      z-index: 10;
-    }
-    
-    .bar-price.lowest {
-      color: #27ae60;
-      background-color: #e8f8ef;
-    }
-    
-    @keyframes pulse {
-      0% {
-        box-shadow: 0 0 0 0 rgba(46, 204, 113, 0.4);
-      }
-      70% {
-        box-shadow: 0 0 0 10px rgba(46, 204, 113, 0);
-      }
-      100% {
-        box-shadow: 0 0 0 0 rgba(46, 204, 113, 0);
-      }
     }
     
     /* Selector de modo de búsqueda */
@@ -1974,7 +1925,7 @@
     }
 
     /* --------------------------
-       Comparison con gráfica visual MEJORADA
+       Comparison con gráfica visual
        -------------------------- */
     function populateCompareSelects(){
       const select = document.getElementById('compareProduct');
@@ -2026,7 +1977,7 @@
           break;
       }
       
-      // Crear gráfica de barras vertical mejorada
+      // Crear gráfica de barras horizontal - CÓDIGO CORREGIDO
       const maxPrice = Math.max(...sortedStores.map(s => s.price));
       const minPrice = Math.min(...sortedStores.map(s => s.price));
       
@@ -2042,28 +1993,21 @@
           
           <h4 style="margin:0 0 12px 0;">Comparación de precios por tienda</h4>
           
-          <!-- Gráfica de barras vertical mejorada -->
-          <div class="comparison-chart-container">
-            <h5 style="margin:0 0 20px 0; text-align: center;">Comparación Visual de Precios</h5>
+          <!-- Gráfica de barras horizontal - CÓDIGO CORREGIDO -->
+          <div style="margin-top: 20px;">
+            <h5 style="margin:0 0 10px 0;">Comparación Visual de Precios</h5>
             <div class="comparison-chart">
               ${sortedStores.map((store, index) => {
                 // Calcular altura de la barra basada en el precio relativo
                 const priceRange = maxPrice - minPrice;
-                const barHeight = priceRange > 0 ? ((store.price - minPrice) / priceRange) * 80 + 20 : 50;
-                const isBest = store.price === minPrice;
-                
+                const barHeight = priceRange > 0 ? ((store.price - minPrice) / priceRange) * 100 : 50;
+                const isBest = index === 0;
                 return `
-                  <div class="chart-bar-container">
-                    <div style="position: relative; height: 100%; display: flex; align-items: flex-end;">
-                      <div class="chart-bar ${isBest ? 'lowest' : ''}" 
-                           style="height: 0;"
-                           id="bar-${index}">
-                        <div class="bar-price ${isBest ? 'lowest' : ''}">$${store.price.toFixed(2)}</div>
-                      </div>
-                    </div>
+                  <div class="chart-bar">
+                    <div class="bar" style="height: ${barHeight}%; background: ${isBest ? 'var(--success)' : 'var(--accent)'};"></div>
                     <div class="bar-label">
-                      ${escapeHtml(store.name)}
-                      ${isBest ? '<div style="color: #27ae60; font-weight: 700; margin-top: 5px;">⭐ MEJOR PRECIO</div>' : ''}
+                      <div style="font-weight:700;">$${store.price.toFixed(2)}</div>
+                      <div class="small">${escapeHtml(store.name)}</div>
                     </div>
                   </div>
                 `;
@@ -2084,9 +2028,9 @@
             </thead>
             <tbody>
               ${sortedStores.map((store, index) => `
-                <tr ${store.price === minPrice ? 'class="best"' : ''}>
+                <tr ${index === 0 ? 'class="best"' : ''}>
                   <td>${escapeHtml(store.name)}</td>
-                  <td style="font-weight:800; color:${store.price === minPrice ? 'var(--success)' : 'var(--accent-2)'};">$${store.price.toFixed(2)}</td>
+                  <td style="font-weight:800; color:var(--accent-2);">$${store.price.toFixed(2)}</td>
                   <td>${store.distance} km</td>
                   <td>${store.time}</td>
                   <td>${store.offer}</td>
@@ -2098,11 +2042,11 @@
           
           <div style="margin-top:16px; padding:12px; border-radius:10px; background: rgba(30,136,229,0.05);">
             <div style="font-weight:700; color:var(--accent);">Recomendación:</div>
-            <div class="small muted">${sortedStores.find(s => s.price === minPrice).name} tiene el mejor precio ($${minPrice.toFixed(2)}) con una distancia de ${sortedStores.find(s => s.price === minPrice).distance} km.</div>
-            ${sortedStores.length > 1 ? `<div class="small muted" style="margin-top:8px; color:var(--success); font-weight:700;">Ahorras $${(sortedStores.find(s => s.price !== minPrice).price - minPrice).toFixed(2)} comprando en ${sortedStores.find(s => s.price === minPrice).name}</div>` : ''}
+            <div class="small muted">${sortedStores[0].name} tiene el mejor precio ($${sortedStores[0].price.toFixed(2)}) con una distancia de ${sortedStores[0].distance} km.</div>
+            ${sortedStores.length > 1 ? `<div class="small muted" style="margin-top:8px; color:var(--success); font-weight:700;">Ahorras $${(sortedStores[1].price - sortedStores[0].price).toFixed(2)} comprando en ${sortedStores[0].name}</div>` : ''}
           </div>
           
-          <!-- Sección de predicción SIN gráfica mini -->
+          <!-- Sección de predicción expandida -->
           <div style="margin-top:20px;">
             <h5 style="margin:0 0 10px 0;">Predicción de Precios</h5>
             <div style="display:flex; gap:20px; align-items:center;">
@@ -2115,21 +2059,14 @@
                   </div>
                 </div>
               </div>
+              <div style="width:120px; height:80px; background:white; border-radius:8px; display:flex; align-items:center; justify-content:center; box-shadow: var(--shadow);">
+                <div class="small muted">Gráfica mini</div>
+              </div>
             </div>
           </div>
         </div>
       `;
-      
       document.getElementById('compareResult').innerHTML = html;
-      
-      // Animar las barras después de un pequeño retraso
-      setTimeout(() => {
-        sortedStores.forEach((store, index) => {
-          const priceRange = maxPrice - minPrice;
-          const barHeight = priceRange > 0 ? ((store.price - minPrice) / priceRange) * 80 + 20 : 50;
-          document.getElementById(`bar-${index}`).style.height = `${barHeight}%`;
-        });
-      }, 100);
     }
 
     /* --------------------------
