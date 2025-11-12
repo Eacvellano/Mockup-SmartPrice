@@ -1,762 +1,339 @@
-<!doctype html>
-<html lang="es">
-<head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>SmartPrice — Tu compra inteligente</title>
+from abc import ABC, abstractmethod
+from datetime import datetime
+from typing import List, Dict, Optional
+from dataclasses import dataclass
+from enum import Enum
 
-  <!-- Fuente -->
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+# Domain Models
+@dataclass
+class Product:
+    id: str
+    name: str
+    brand: str
+    category: str
 
-  <!-- Estilos (se mantienen iguales) -->
-  <style>
-    /* ... (estilos existentes se mantienen igual) ... */
-    
-    /* Nuevos estilos para CU-010, CU-011, CU-012 */
-    .preferences-section {
-      background: white;
-      padding: 20px;
-      border-radius: 12px;
-      box-shadow: var(--shadow);
-      margin-bottom: 20px;
-    }
-    
-    .preference-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-      gap: 20px;
-      margin-top: 16px;
-    }
-    
-    .store-favorite {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      padding: 10px;
-      border: 1px solid rgba(0,0,0,0.08);
-      border-radius: 8px;
-      cursor: pointer;
-      transition: all 0.2s ease;
-    }
-    
-    .store-favorite.active {
-      border-color: var(--accent);
-      background: rgba(30,136,229,0.05);
-    }
-    
-    .list-manager {
-      display: flex;
-      gap: 20px;
-      flex-wrap: wrap;
-    }
-    
-    .saved-lists {
-      flex: 1;
-      min-width: 300px;
-    }
-    
-    .list-item {
-      padding: 12px;
-      border-radius: 10px;
-      background: white;
-      margin-bottom: 10px;
-      box-shadow: var(--shadow);
-      cursor: pointer;
-      transition: all 0.2s ease;
-    }
-    
-    .list-item:hover {
-      transform: translateY(-2px);
-      box-shadow: var(--shadow-hover);
-    }
-    
-    .list-stats {
-      display: flex;
-      justify-content: space-between;
-      margin-top: 8px;
-      font-size: 0.85rem;
-      color: var(--muted);
-    }
-    
-    .report-history {
-      margin-top: 20px;
-    }
-    
-    .report-item {
-      padding: 12px;
-      border-radius: 10px;
-      background: white;
-      margin-bottom: 10px;
-      box-shadow: var(--shadow);
-      border-left: 4px solid var(--accent);
-    }
-    
-    .report-item.priority {
-      border-left-color: #f44336;
-      background: rgba(244, 67, 54, 0.05);
-    }
-    
-    .report-status {
-      display: inline-block;
-      padding: 4px 8px;
-      border-radius: 12px;
-      font-size: 0.75rem;
-      font-weight: 700;
-      margin-left: 8px;
-    }
-    
-    .status-pending {
-      background: rgba(255, 152, 0, 0.1);
-      color: #ff9800;
-    }
-    
-    .status-reviewed {
-      background: rgba(30, 136, 229, 0.1);
-      color: var(--accent);
-    }
-    
-    .status-resolved {
-      background: rgba(67, 160, 71, 0.1);
-      color: var(--success);
-    }
-  </style>
-</head>
-<body>
-  <!-- TOPBAR (se mantiene igual) -->
-  <header class="topbar">
-    <!-- ... contenido existente ... -->
-  </header>
+@dataclass
+class Store:
+    id: str
+    name: str
+    location: str
+    chain: str
 
-  <!-- BOTTOM NAVIGATION - MOBILE (se mantiene igual) -->
-  <div class="bottom-nav" id="bottomNav">
-    <!-- ... contenido existente ... -->
-  </div>
+@dataclass
+class PriceInfo:
+    product_id: str
+    store_id: str
+    price: float
+    availability: bool
+    timestamp: datetime
+    is_promotional: bool = False
 
-  <!-- CONTENT -->
-  <div class="wrap">
+@dataclass
+class PriceComparison:
+    product: Product
+    store_prices: List[PriceInfo]
 
-    <!-- SPLASH (se mantiene igual) -->
-    <section id="splash" class="app-section active">
-      <!-- ... contenido existente ... -->
-    </section>
+@dataclass
+class User:
+    id: str
+    email: str
+    preferences: 'UserPreferences'
 
-    <!-- LOGIN (se mantiene igual) -->
-    <section id="login" class="app-section">
-      <!-- ... contenido existente ... -->
-    </section>
+@dataclass
+class UserPreferences:
+    favorite_stores: List[str]
+    location: str
+    notification_enabled: bool
+    price_reduction_threshold: float = 5.0
 
-    <!-- HOME / PRODUCTOS (se mantiene igual) -->
-    <section id="home" class="app-section">
-      <!-- ... contenido existente ... -->
-    </section>
+# Repository Interfaces (Clean Architecture)
+class ProductRepository(ABC):
+    @abstractmethod
+    def search_products(self, query: str) -> List[Product]:
+        pass
 
-    <!-- SEARCH (se mantiene igual) -->
-    <section id="search" class="app-section">
-      <!-- ... contenido existente ... -->
-    </section>
+class PriceRepository(ABC):
+    @abstractmethod
+    def get_current_prices(self, product_ids: List[str]) -> List[PriceInfo]:
+        pass
+    
+    @abstractmethod
+    def get_price_history(self, product_id: str) -> List[PriceInfo]:
+        pass
 
-    <!-- COMPARE (se mantiene igual) -->
-    <section id="compare" class="app-section">
-      <!-- ... contenido existente ... -->
-    </section>
+class StoreRepository(ABC):
+    @abstractmethod
+    def get_stores_by_location(self, location: str) -> List[Store]:
+        pass
 
-    <!-- PRODUCT DETAIL (se mantiene igual) -->
-    <section id="product" class="app-section">
-      <!-- ... contenido existente ... -->
-    </section>
+class UserRepository(ABC):
+    @abstractmethod
+    def save_user_preferences(self, user_id: str, preferences: UserPreferences) -> None:
+        pass
 
-    <!-- CART - MEJORADO PARA CU-011 -->
-    <section id="cart" class="app-section">
-      <h2>Gestionar Listas de Compra</h2>
-      <div class="list-manager">
-        <div class="saved-lists">
-          <h4>Mis Listas Guardadas</h4>
-          <div id="savedListsContainer">
-            <!-- Listas se generan por JS -->
-          </div>
-          <button class="btn-ghost" onclick="createNewList()" style="margin-top: 10px;">+ Nueva Lista</button>
-        </div>
-
-        <div style="flex: 2; min-width: 400px;">
-          <div class="card">
-            <h4 id="currentListTitle">Lista Actual</h4>
-            <div id="cartItems">
-              <!-- items del carrito -->
-            </div>
+# Use Case Implementations
+class ConsultAndComparePricesUseCase:
+    """CU-001: Consultar y Comparar Precios en Tiempo Real"""
+    
+    def __init__(self, 
+                 product_repo: ProductRepository,
+                 price_repo: PriceRepository,
+                 store_repo: StoreRepository):
+        self.product_repo = product_repo
+        self.price_repo = price_repo
+        self.store_repo = store_repo
+    
+    def execute(self, query: str, user_location: str) -> List[PriceComparison]:
+        # 1. Usuario ingresa criterio de búsqueda
+        products = self.product_repo.search_products(query)
+        
+        comparisons = []
+        for product in products:
+            # 2. Consulta concurrente de APIs de supermercados
+            prices = self.price_repo.get_current_prices([product.id])
             
-            <div style="margin-top: 16px;">
-              <input type="text" id="listNameInput" placeholder="Nombre de la lista" style="width: 100%; padding: 10px; border-radius: 8px; border: 1px solid rgba(0,0,0,0.08); margin-bottom: 10px;">
-              
-              <div class="preference-item">
-                <label class="small muted">Supermercado para cálculo:</label>
-                <select id="storeCalculation" style="width: 100%; padding: 8px; border-radius: 8px; border: 1px solid rgba(0,0,0,0.08); margin-top: 4px;">
-                  <option value="all">Comparar todos</option>
-                </select>
-              </div>
-              
-              <div style="display: flex; gap: 10px; margin-top: 16px;">
-                <button class="btn-primary" onclick="saveCurrentList()">Guardar Lista</button>
-                <button class="btn-ghost" onclick="clearCurrentList()">Limpiar</button>
-              </div>
-            </div>
-          </div>
-
-          <!-- Resumen de compra MEJORADO -->
-          <div class="card" style="margin-top: 16px;">
-            <h4>Resumen de Compra por Supermercado</h4>
-            <div id="storeComparisonSummary">
-              <!-- Resumen generado por JS -->
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- MAP (se mantiene igual) -->
-    <section id="map" class="app-section">
-      <!-- ... contenido existente ... -->
-    </section>
-
-    <!-- PROFILE - MEJORADO PARA CU-010 -->
-    <section id="profile" class="app-section">
-      <h2>Mi Perfil y Preferencias</h2>
-      
-      <!-- Información básica del usuario -->
-      <div class="card" style="display: flex; gap: 20px; align-items: center; flex-wrap: wrap;">
-        <div class="profile-card">
-          <div class="avatar" id="avatarChar">J</div>
-          <div>
-            <div id="profileName" style="font-weight:800; font-size:1.15rem">Invitado</div>
-            <div class="small muted" id="profileEmail">invitado@demo</div>
-          </div>
-        </div>
-
-        <div style="flex:1; min-width:280px;">
-          <label class="small muted">Nombre</label><br>
-          <input id="profileInputName" style="width:100%; padding:12px; border-radius:10px; margin-top:8px; background:white; border:1px solid rgba(0,0,0,0.08); color:var(--text);">
-          <label class="small muted" style="margin-top:10px; display:block;">Correo</label><br>
-          <input id="profileInputEmail" style="width:100%; padding:12px; border-radius:10px; margin-top:8px; background:white; border:1px solid rgba(0,0,0,0.08); color:var(--text);">
-          <div style="display:flex; gap:10px; margin-top:12px;">
-            <button class="btn-primary" onclick="saveProfile()">Guardar</button>
-            <button class="btn-ghost" onclick="logout()">Cerrar sesión</button>
-          </div>
-        </div>
-      </div>
-
-      <!-- Preferencias MEJORADAS -->
-      <div class="preferences-section">
-        <h3>Preferencias de Búsqueda</h3>
-        <div class="preference-grid">
-          <div class="preference-item">
-            <div class="small muted">Radio de búsqueda:</div>
-            <div class="slider-container">
-              <input type="range" min="1" max="20" value="5" class="slider" id="searchRadius">
-              <span id="radiusValue" class="small">5 km</span>
-            </div>
-          </div>
-          
-          <div class="preference-item">
-            <div class="small muted">Ubicación habitual:</div>
-            <input type="text" id="defaultLocation" placeholder="Mérida, Yucatán" style="width:100%; padding:8px; border-radius:8px; border:1px solid rgba(0,0,0,0.08); margin-top:4px;">
-          </div>
-        </div>
-      </div>
-
-      <!-- Supermercados favoritos MEJORADO -->
-      <div class="preferences-section">
-        <h3>Supermercados Favoritos</h3>
-        <div class="small muted" style="margin-bottom: 12px;">Selecciona tus tiendas preferidas para priorizarlas en las búsquedas</div>
-        <div class="preference-grid" id="favoriteStoresContainer">
-          <!-- Generado por JS -->
-        </div>
-      </div>
-
-      <!-- Preferencias de notificaciones MEJORADO -->
-      <div class="preferences-section">
-        <h3>Preferencias de Notificaciones</h3>
-        <div class="preference-grid">
-          <div class="preference-item">
-            <div class="small muted">Canal de notificaciones:</div>
-            <div class="notification-channels">
-              <div class="notification-channel active" onclick="toggleNotificationChannel(this)">🔔 Push</div>
-              <div class="notification-channel" onclick="toggleNotificationChannel(this)">✉️ Email</div>
-            </div>
-          </div>
-          
-          <div class="preference-item">
-            <div class="small muted">Umbral de alerta de precios:</div>
-            <select id="priceAlertThreshold" style="width:100%; padding:8px; border-radius:8px; border:1px solid rgba(0,0,0,0.08); margin-top:4px;">
-              <option value="5">5% de descuento</option>
-              <option value="10">10% de descuento</option>
-              <option value="15">15% de descuento</option>
-              <option value="20">20% de descuento</option>
-            </select>
-          </div>
-        </div>
+            # 3. Consolidar y normalizar datos
+            store_prices = self._normalize_prices(prices)
+            
+            # 4. Mostrar resultados ordenables por precio
+            comparison = PriceComparison(product=product, store_prices=store_prices)
+            comparisons.append(comparison)
         
-        <div class="preference-item" style="margin-top: 16px;">
-          <div class="small muted">Modo ahorro extremo:
-            <label class="toggle-switch">
-              <input type="checkbox" id="extremeSavingMode">
-              <span class="toggle-slider"></span>
-            </label>
-          </div>
-        </div>
-      </div>
+        return sorted(comparisons, key=lambda x: min(p.price for p in x.store_prices))
 
-      <!-- Historial de reportes PARA CU-012 -->
-      <div class="preferences-section">
-        <h3>Mis Reportes de Precios</h3>
-        <div class="report-history" id="userReportsContainer">
-          <!-- Generado por JS -->
-        </div>
-      </div>
+    def _normalize_prices(self, prices: List[PriceInfo]) -> List[PriceInfo]:
+        # Lógica de normalización de datos
+        return sorted(prices, key=lambda x: x.price)
 
-      <!-- Productos seguidos (se mantiene igual) -->
-      <div style="margin-top:18px;" id="followedArea">
-        <h3>Productos Seguidos</h3>
-        <div id="followedList" style="display:flex; gap:10px; flex-wrap:wrap; margin-top:10px;">
-          <!-- seguidos -->
-        </div>
-      </div>
-    </section>
-
-    <!-- CHAT (se mantiene igual) -->
-    <section id="chat" class="app-section">
-      <!-- ... contenido existente ... -->
-    </section>
-
-  </div>
-
-  <footer>
-    © 2025 SmartPrice — Mockup interactivo • Cumple con estándares de accesibilidad • Protección de datos
-  </footer>
-
-  <!-- SCRIPT: Lógica MEJORADA para CU-010, CU-011, CU-012 -->
-  <script>
-    /* --------------------------
-       Datos de ejemplo (se mantienen iguales)
-       -------------------------- */
-    const PRODUCTS = [ /* ... datos existentes ... */ ];
-    const STORES = [ /* ... datos existentes ... */ ];
-
-    /* --------------------------
-       Estado MEJORADO para nuevos casos de uso
-       -------------------------- */
-    const state = {
-      cart: JSON.parse(localStorage.getItem('sp_cart') || '[]'),
-      followed: JSON.parse(localStorage.getItem('sp_followed') || '[]'),
-      user: JSON.parse(localStorage.getItem('sp_user') || 'null'),
-      currentOpenProduct: null,
-      searchMode: 'price',
-      // NUEVO: Estado para CU-010, CU-011, CU-012
-      userPreferences: JSON.parse(localStorage.getItem('sp_preferences') || '{}'),
-      savedLists: JSON.parse(localStorage.getItem('sp_lists') || '[]'),
-      userReports: JSON.parse(localStorage.getItem('sp_reports') || '[]'),
-      currentListId: null
-    };
-
-    // NUEVO: Preferencias por defecto
-    const defaultPreferences = {
-      favoriteStores: ['Walmart Altabrisa', 'Soriana Montejo'],
-      searchRadius: 5,
-      defaultLocation: 'Mérida, Yucatán',
-      notificationChannel: 'push',
-      priceAlertThreshold: 5,
-      extremeSavingMode: false,
-      viewMode: 'compact'
-    };
-
-    function persist(){
-      localStorage.setItem('sp_cart', JSON.stringify(state.cart));
-      localStorage.setItem('sp_followed', JSON.stringify(state.followed));
-      localStorage.setItem('sp_user', JSON.stringify(state.user));
-      localStorage.setItem('sp_preferences', JSON.stringify(state.userPreferences));
-      localStorage.setItem('sp_lists', JSON.stringify(state.savedLists));
-      localStorage.setItem('sp_reports', JSON.stringify(state.userReports));
-      renderCartBadge();
-    }
-
-    /* --------------------------
-       CU-010: Gestionar Cuenta y Preferencias - IMPLEMENTACIÓN COMPLETA
-       -------------------------- */
-    function initializePreferences() {
-      // Mezclar preferencias por defecto con las guardadas
-      state.userPreferences = { ...defaultPreferences, ...state.userPreferences };
-    }
-
-    function renderUserPreferences() {
-      // Renderizar supermercados favoritos
-      const container = document.getElementById('favoriteStoresContainer');
-      if (!container) return;
-      
-      container.innerHTML = STORES.map(store => `
-        <div class="store-favorite ${state.userPreferences.favoriteStores.includes(store.name) ? 'active' : ''}" 
-             onclick="toggleFavoriteStore('${store.name}')">
-          <input type="checkbox" ${state.userPreferences.favoriteStores.includes(store.name) ? 'checked' : ''} 
-                 style="margin: 0;" onchange="toggleFavoriteStore('${store.name}')">
-          <span>${store.name}</span>
-        </div>
-      `).join('');
-
-      // Actualizar otros controles de preferencias
-      const searchRadius = document.getElementById('searchRadius');
-      const radiusValue = document.getElementById('radiusValue');
-      const defaultLocation = document.getElementById('defaultLocation');
-      const priceAlertThreshold = document.getElementById('priceAlertThreshold');
-      const extremeSavingMode = document.getElementById('extremeSavingMode');
-
-      if (searchRadius && radiusValue) {
-        searchRadius.value = state.userPreferences.searchRadius;
-        radiusValue.textContent = state.userPreferences.searchRadius + ' km';
-        searchRadius.oninput = function() {
-          state.userPreferences.searchRadius = parseInt(this.value);
-          radiusValue.textContent = this.value + ' km';
-          persist();
-        };
-      }
-
-      if (defaultLocation) {
-        defaultLocation.value = state.userPreferences.defaultLocation;
-        defaultLocation.onchange = function() {
-          state.userPreferences.defaultLocation = this.value;
-          persist();
-        };
-      }
-
-      if (priceAlertThreshold) {
-        priceAlertThreshold.value = state.userPreferences.priceAlertThreshold;
-        priceAlertThreshold.onchange = function() {
-          state.userPreferences.priceAlertThreshold = parseInt(this.value);
-          persist();
-        };
-      }
-
-      if (extremeSavingMode) {
-        extremeSavingMode.checked = state.userPreferences.extremeSavingMode;
-        extremeSavingMode.onchange = function() {
-          state.userPreferences.extremeSavingMode = this.checked;
-          persist();
-        };
-      }
-    }
-
-    function toggleFavoriteStore(storeName) {
-      const index = state.userPreferences.favoriteStores.indexOf(storeName);
-      if (index > -1) {
-        state.userPreferences.favoriteStores.splice(index, 1);
-      } else {
-        state.userPreferences.favoriteStores.push(storeName);
-      }
-      persist();
-      renderUserPreferences();
-    }
-
-    function toggleNotificationChannel(element) {
-      document.querySelectorAll('.notification-channel').forEach(el => {
-        el.classList.remove('active');
-      });
-      element.classList.add('active');
-      state.userPreferences.notificationChannel = element.textContent.includes('Push') ? 'push' : 'email';
-      persist();
-    }
-
-    /* --------------------------
-       CU-011: Gestionar Listas de Compra - IMPLEMENTACIÓN COMPLETA
-       -------------------------- */
-    function renderSavedLists() {
-      const container = document.getElementById('savedListsContainer');
-      if (!container) return;
-
-      if (state.savedLists.length === 0) {
-        container.innerHTML = `
-          <div class="empty-state" style="padding: 20px;">
-            <div class="empty-state-icon">📝</div>
-            <div class="empty-state-title">No tienes listas guardadas</div>
-            <div class="empty-state-description">Crea tu primera lista de compras</div>
-          </div>
-        `;
-        return;
-      }
-
-      container.innerHTML = state.savedLists.map(list => `
-        <div class="list-item" onclick="loadList('${list.id}')">
-          <div style="font-weight: 700;">${escapeHtml(list.name)}</div>
-          <div class="list-stats">
-            <span>${list.items.length} productos</span>
-            <span>$${calculateListTotal(list.items).toFixed(2)}</span>
-          </div>
-          <div class="small muted">Creada: ${new Date(list.createdAt).toLocaleDateString()}</div>
-        </div>
-      `).join('');
-    }
-
-    function calculateListTotal(items) {
-      return items.reduce((total, item) => {
-        const product = PRODUCTS.find(p => p.id === item.id);
-        return total + (product ? product.stores[0].price * item.qty : 0);
-      }, 0);
-    }
-
-    function createNewList() {
-      state.currentListId = null;
-      state.cart = [];
-      document.getElementById('listNameInput').value = 'Mi lista de compras';
-      document.getElementById('currentListTitle').textContent = 'Nueva Lista';
-      renderCart();
-      updateStoreComparison();
-    }
-
-    function saveCurrentList() {
-      const listName = document.getElementById('listNameInput').value.trim() || 'Mi lista de compras';
-      
-      if (state.cart.length === 0) {
-        toast('La lista está vacía', 'error');
-        return;
-      }
-
-      const listData = {
-        id: state.currentListId || 'list_' + Date.now(),
-        name: listName,
-        items: [...state.cart],
-        createdAt: state.currentListId ? 
-          (state.savedLists.find(l => l.id === state.currentListId)?.createdAt || new Date().toISOString()) : 
-          new Date().toISOString(),
-        updatedAt: new Date().toISOString()
-      };
-
-      if (state.currentListId) {
-        // Actualizar lista existente
-        const index = state.savedLists.findIndex(l => l.id === state.currentListId);
-        if (index > -1) {
-          state.savedLists[index] = listData;
+class ViewPriceHistoryUseCase:
+    """CU-002: Visualizar Historial y Evolución de Precios"""
+    
+    def __init__(self, price_repo: PriceRepository):
+        self.price_repo = price_repo
+    
+    def execute(self, product_id: str) -> Dict:
+        # 1. Usuario navega a página del producto y hace clic en "Ver Historial"
+        price_history = self.price_repo.get_price_history(product_id)
+        
+        if not price_history:
+            return {"error": "Aún no hay datos históricos para este producto"}
+        
+        # 2. Presentar datos en visualización clara
+        return {
+            "product_id": product_id,
+            "history": [
+                {
+                    "price": price.price,
+                    "date": price.timestamp,
+                    "store": price.store_id
+                }
+                for price in price_history
+            ]
         }
-      } else {
-        // Nueva lista
-        state.savedLists.push(listData);
-      }
 
-      persist();
-      renderSavedLists();
-      toast('Lista guardada correctamente', 'success');
-    }
-
-    function loadList(listId) {
-      const list = state.savedLists.find(l => l.id === listId);
-      if (!list) return;
-
-      state.currentListId = listId;
-      state.cart = [...list.items];
-      document.getElementById('listNameInput').value = list.name;
-      document.getElementById('currentListTitle').textContent = list.name;
-      
-      renderCart();
-      updateStoreComparison();
-      toast('Lista cargada', 'success');
-    }
-
-    function clearCurrentList() {
-      state.cart = [];
-      state.currentListId = null;
-      document.getElementById('currentListTitle').textContent = 'Lista Actual';
-      renderCart();
-      updateStoreComparison();
-    }
-
-    function updateStoreComparison() {
-      const container = document.getElementById('storeComparisonSummary');
-      if (!container) return;
-
-      if (state.cart.length === 0) {
-        container.innerHTML = '<div class="small muted">Agrega productos para ver comparación</div>';
-        return;
-      }
-
-      // Calcular totales por tienda
-      const storeTotals = {};
-      STORES.forEach(store => {
-        storeTotals[store.name] = state.cart.reduce((total, item) => {
-          const product = PRODUCTS.find(p => p.id === item.id);
-          if (product) {
-            const storePrice = product.stores.find(s => s.name === store.name);
-            return total + (storePrice ? storePrice.price * item.qty : 0);
-          }
-          return total;
-        }, 0);
-      });
-
-      // Encontrar mejor opción
-      const validStores = Object.entries(storeTotals).filter(([_, total]) => total > 0);
-      if (validStores.length === 0) {
-        container.innerHTML = '<div class="small muted">No hay datos de precios para estas tiendas</div>';
-        return;
-      }
-
-      const bestStore = validStores.reduce((best, [store, total]) => 
-        total < best.total ? { store, total } : best, 
-        { store: '', total: Infinity }
-      );
-
-      const worstStore = validStores.reduce((worst, [store, total]) => 
-        total > worst.total ? { store, total } : worst, 
-        { store: '', total: 0 }
-      );
-
-      const saving = worstStore.total - bestStore.total;
-
-      container.innerHTML = `
-        ${validStores.map(([store, total]) => `
-          <div style="display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid rgba(0,0,0,0.05);">
-            <span>${store}</span>
-            <span style="font-weight: ${store === bestStore.store ? '800' : '600'}; color: ${store === bestStore.store ? 'var(--success)' : 'var(--text)'};">
-              $${total.toFixed(2)}
-              ${store === bestStore.store ? ' 🏆' : ''}
-            </span>
-          </div>
-        `).join('')}
-        ${saving > 0 ? `
-          <div style="margin-top: 12px; padding: 10px; background: rgba(67,160,71,0.1); border-radius: 8px;">
-            <div style="font-weight: 700; color: var(--success);">Ahorro potencial: $${saving.toFixed(2)}</div>
-            <div class="small muted">Comprando en ${bestStore.store} en lugar de ${worstStore.store}</div>
-          </div>
-        ` : ''}
-      `;
-    }
-
-    /* --------------------------
-       CU-012: Reportar Discrepancia de Precios - IMPLEMENTACIÓN COMPLETA
-       -------------------------- */
-    function submitReport() {
-      const storeSelect = document.querySelector('#reportForm select');
-      const priceInput = document.querySelector('#reportForm input[type="text"]');
-      const fileInput = document.querySelector('#reportForm input[type="file"]');
-      
-      if (!storeSelect || !priceInput) {
-        toast('Error en el formulario', 'error');
-        return;
-      }
-
-      const reportData = {
-        id: 'report_' + Date.now(),
-        productId: currentOpenProduct,
-        store: storeSelect.value,
-        reportedPrice: parseFloat(priceInput.value.replace('$', '')) || 0,
-        evidence: fileInput.files.length > 0 ? 'image_uploaded' : null,
-        status: 'pending',
-        createdAt: new Date().toISOString(),
-        comments: document.querySelector('#reportForm textarea')?.value || ''
-      };
-
-      // Verificar si ya hay reportes para este producto
-      const existingReports = state.userReports.filter(r => 
-        r.productId === currentOpenProduct && r.store === reportData.store
-      );
-      
-      if (existingReports.length >= 2) {
-        reportData.priority = true;
-      }
-
-      state.userReports.push(reportData);
-      persist();
-      renderUserReports();
-      
-      toast('Reporte enviado. Gracias por colaborar.', 'success');
-      toggleReportForm();
-    }
-
-    function renderUserReports() {
-      const container = document.getElementById('userReportsContainer');
-      if (!container) return;
-
-      if (state.userReports.length === 0) {
-        container.innerHTML = `
-          <div class="empty-state" style="padding: 20px;">
-            <div class="empty-state-icon">📋</div>
-            <div class="empty-state-title">No has enviado reportes</div>
-            <div class="empty-state-description">Los reportes ayudan a mantener la información actualizada</div>
-          </div>
-        `;
-        return;
-      }
-
-      container.innerHTML = state.userReports.map(report => {
-        const product = PRODUCTS.find(p => p.id === report.productId);
-        const statusClass = `status-${report.status}`;
+class PricePredictionUseCase:
+    """CU-003: Recibir Predicción de Precios con IA"""
+    
+    def __init__(self, price_repo: PriceRepository, ai_model: 'PricePredictionModel'):
+        self.price_repo = price_repo
+        self.ai_model = ai_model
+    
+    def execute(self, product_id: str) -> Dict:
+        # 1. Usuario activa seguimiento de producto
+        price_history = self.price_repo.get_price_history(product_id)
         
-        return `
-          <div class="report-item ${report.priority ? 'priority' : ''}">
-            <div style="display: flex; justify-content: space-between; align-items: flex-start;">
-              <div>
-                <div style="font-weight: 700;">${product ? product.name : 'Producto'} • ${report.store}</div>
-                <div class="small muted">Precio reportado: $${report.reportedPrice.toFixed(2)}</div>
-                ${report.comments ? `<div class="small muted" style="margin-top: 4px;">${escapeHtml(report.comments)}</div>` : ''}
-              </div>
-              <div>
-                <span class="report-status ${statusClass}">${report.status === 'pending' ? 'Pendiente' : report.status === 'reviewed' ? 'Revisado' : 'Resuelto'}</span>
-                ${report.priority ? '<span class="badge badge-danger" style="margin-left: 4px;">Prioritario</span>' : ''}
-              </div>
-            </div>
-            <div class="small muted" style="margin-top: 8px;">
-              Reportado: ${new Date(report.createdAt).toLocaleDateString()}
-              ${report.evidence ? ' • Con evidencia' : ''}
-            </div>
-          </div>
-        `;
-      }).join('');
-    }
+        if len(price_history) < 10:  # Historial mínimo suficiente
+            return {"error": "No hay suficientes datos para realizar una predicción"}
+        
+        # 2. Analizar datos históricos con modelo de IA
+        prediction = self.ai_model.predict(price_history)
+        
+        return {
+            "product_id": product_id,
+            "prediction": prediction.trend,
+            "confidence": prediction.confidence,
+            "recommendation": prediction.recommendation
+        }
 
-    /* --------------------------
-       Funciones existentes MODIFICADAS para integración
-       -------------------------- */
-    function navigate(sectionId){
-      document.querySelectorAll('section.app-section').forEach(s => s.classList.remove('active'));
-      const s = document.getElementById(sectionId);
-      if(s) s.classList.add('active');
-      
-      // Actualizar navegación (código existente...)
-      
-      // NUEVO: Acciones específicas para nuevas secciones
-      if(sectionId === 'profile') {
-        renderProfile();
-        renderUserPreferences();
-        renderUserReports();
-      }
-      if(sectionId === 'cart') {
-        renderCart();
-        renderSavedLists();
-        updateStoreComparison();
-      }
-    }
+class ValidateOfferReliabilityUseCase:
+    """CU-004: Validar Confiabilidad de una Oferta"""
+    
+    def __init__(self, price_repo: PriceRepository):
+        self.price_repo = price_repo
+    
+    def execute(self, product_id: str, current_price: float) -> str:
+        # 1. Sistema detecta precio promocional
+        price_history = self.price_repo.get_price_history(product_id)
+        
+        if not price_history:
+            return "Desconocida"
+        
+        # 2. Consultar historial: duración de ofertas pasadas
+        offer_reliability = self._calculate_reliability(price_history, current_price)
+        
+        # 3. Asignar nivel de validez basado en reglas predefinidas
+        return self._get_reliability_label(offer_reliability)
+    
+    def _calculate_reliability(self, history: List[PriceInfo], current_price: float) -> float:
+        # Lógica para calcular confiabilidad basada en patrones históricos
+        promotional_periods = self._analyze_promotional_patterns(history)
+        return promotional_periods  # Simplified return
+    
+    def _get_reliability_label(self, reliability_score: float) -> str:
+        if reliability_score > 0.8:
+            return "Alta"
+        elif reliability_score > 0.5:
+            return "Media"
+        else:
+            return "Baja"
 
-    function renderProfile(){
-      // Código existente...
-      
-      // NUEVO: Inicializar preferencias si no existen
-      if (Object.keys(state.userPreferences).length === 0) {
-        initializePreferences();
-      }
-    }
+class RecommendStoreUseCase:
+    """CU-005: Recomendar Tienda Más Conveniente"""
+    
+    def __init__(self, store_repo: StoreRepository, price_repo: PriceRepository):
+        self.store_repo = store_repo
+        self.price_repo = price_repo
+    
+    def execute(self, product_id: str, user_location: str, prioritize_distance: bool = False) -> Dict:
+        # 1. Usuario busca producto con geolocalización activada
+        stores = self.store_repo.get_stores_by_location(user_location)
+        prices = self.price_repo.get_current_prices([product_id])
+        
+        # 2. Obtener precios y ubicaciones
+        store_data = []
+        for store in stores:
+            store_price = next((p for p in prices if p.store_id == store.id), None)
+            if store_price:
+                # 3. Calcular distancia del usuario a cada tienda
+                distance = self._calculate_distance(user_location, store.location)
+                
+                store_data.append({
+                    'store': store,
+                    'price': store_price.price,
+                    'distance': distance
+                })
+        
+        # 4. Aplicar algoritmo de ranking que pondera precio y distancia
+        ranked_stores = self._rank_stores(store_data, prioritize_distance)
+        
+        return {
+            'recommended_store': ranked_stores[0] if ranked_stores else None,
+            'all_options': ranked_stores
+        }
+    
+    def _calculate_distance(self, user_location: str, store_location: str) -> float:
+        # Implementar cálculo de distancia real
+        return 0.0  # Placeholder
+    
+    def _rank_stores(self, store_data: List[Dict], prioritize_distance: bool) -> List[Dict]:
+        if prioritize_distance:
+            return sorted(store_data, key=lambda x: x['distance'])
+        else:
+            # Combinar precio y distancia en score único
+            return sorted(store_data, key=lambda x: (x['price'] * 0.7 + x['distance'] * 0.3))
 
-    function init(){
-      // Código existente...
-      
-      // NUEVO: Inicializar nuevos módulos
-      initializePreferences();
-      renderUserPreferences();
-      renderSavedLists();
-      renderUserReports();
-      updateStoreComparison();
-      
-      // keep initial nav highlighting
-      document.querySelectorAll('.navlinks button')[0].classList.add('active');
-      document.querySelectorAll('.bottom-nav button')[0].classList.add('active');
-    }
+class ShoppingListUseCase:
+    """CU-011: Gestionar Listas de Compra"""
+    
+    def __init__(self, product_repo: ProductRepository, price_repo: PriceRepository):
+        self.product_repo = product_repo
+        self.price_repo = price_repo
+    
+    def calculate_shopping_list_totals(self, product_ids: List[str]) -> Dict:
+        # 1. Usuario agrega productos a la lista
+        products = [self.product_repo.search_products(pid)[0] for pid in product_ids]
+        prices = self.price_repo.get_current_prices(product_ids)
+        
+        # 2. Sistema obtiene precios actualizados
+        store_totals = self._calculate_store_totals(prices, product_ids)
+        
+        # 3. Mostrar costo total por supermercado y ahorro potencial
+        return {
+            'store_totals': store_totals,
+            'best_option': min(store_totals.items(), key=lambda x: x[1]['total']),
+            'potential_savings': self._calculate_potential_savings(store_totals)
+        }
+    
+    def _calculate_store_totals(self, prices: List[PriceInfo], product_ids: List[str]) -> Dict:
+        store_totals = {}
+        for price in prices:
+            if price.store_id not in store_totals:
+                store_totals[price.store_id] = {'total': 0, 'products': []}
+            
+            store_totals[price.store_id]['total'] += price.price
+            store_totals[price.store_id]['products'].append(price.product_id)
+        
+        return store_totals
+    
+    def _calculate_potential_savings(self, store_totals: Dict) -> float:
+        if len(store_totals) < 2:
+            return 0.0
+        
+        totals = [data['total'] for data in store_totals.values()]
+        return max(totals) - min(totals)
 
-    // Funciones de utilidad existentes se mantienen igual...
-    function escapeHtml(s){ /* ... */ }
-    function toast(msg, type = 'info'){ /* ... */ }
+# Service Layer for Coordination
+class SmartPriceService:
+    def __init__(self):
+        # Inicializar repositorios y casos de uso
+        self.product_repo = ConcreteProductRepository()
+        self.price_repo = ConcretePriceRepository()
+        self.store_repo = ConcreteStoreRepository()
+        
+        self.compare_prices_uc = ConsultAndComparePricesUseCase(
+            self.product_repo, self.price_repo, self.store_repo
+        )
+        self.view_history_uc = ViewPriceHistoryUseCase(self.price_repo)
+        self.recommend_store_uc = RecommendStoreUseCase(self.store_repo, self.price_repo)
+        self.shopping_list_uc = ShoppingListUseCase(self.product_repo, self.price_repo)
+    
+    def search_products(self, query: str, user_location: str) -> List[PriceComparison]:
+        return self.compare_prices_uc.execute(query, user_location)
+    
+    def get_price_history(self, product_id: str) -> Dict:
+        return self.view_history_uc.execute(product_id)
+    
+    def get_store_recommendation(self, product_id: str, user_location: str) -> Dict:
+        return self.recommend_store_uc.execute(product_id, user_location)
+    
+    def calculate_shopping_list(self, product_ids: List[str]) -> Dict:
+        return self.shopping_list_uc.calculate_shopping_list_totals(product_ids)
 
-    window.addEventListener('load', init);
-  </script>
-</body>
-</html>
+# Concrete Implementations (would be in separate files)
+class ConcreteProductRepository(ProductRepository):
+    def search_products(self, query: str) -> List[Product]:
+        # Implementación real con base de datos/APIs
+        return []
+
+class ConcretePriceRepository(PriceRepository):
+    def get_current_prices(self, product_ids: List[str]) -> List[PriceInfo]:
+        # Implementación real con llamadas concurrentes a APIs
+        return []
+    
+    def get_price_history(self, product_id: str) -> List[PriceInfo]:
+        # Implementación real con base de datos histórica
+        return []
+
+class ConcreteStoreRepository(StoreRepository):
+    def get_stores_by_location(self, location: str) -> List[Store]:
+        # Implementación real con geolocalización
+        return []
+
+# Usage Example
+def main():
+    service = SmartPriceService()
+    
+    # CU-001: Búsqueda y comparación de precios
+    results = service.search_products("manzanas", "Ciudad de México")
+    
+    # CU-002: Ver historial de precios
+    history = service.get_price_history("prod_123")
+    
+    # CU-005: Recomendación de tienda
+    recommendation = service.get_store_recommendation("prod_123", "Ciudad de México")
+    
+    # CU-011: Lista de compras
+    shopping_list = service.calculate_shopping_list(["prod_123", "prod_456"])
+
+if __name__ == "__main__":
+    main()
